@@ -53,12 +53,12 @@ export const useAuthStore = create((set, get) => ({
   },
 
   login: async (data) => {
-    seif (res.data.token) {
-        localStorage.setItem("authToken", res.data.token);
-      }
-      t({ isLoggingIn: true });
+    set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/auth/login", data);
+      if (res.data.token) {
+        localStorage.setItem("authToken", res.data.token);
+      }
       set({ authUser: res.data });
 
       toast.success("Logged in successfully");
@@ -71,10 +71,10 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  logolocalStorage.removeItem("authToken");
-      ut: async () => {
+  logout: async () => {
     try {
       await axiosInstance.post("/auth/logout");
+      localStorage.removeItem("authToken");
       set({ authUser: null });
       toast.success("Logged out successfully");
       get().disconnectSocket();
@@ -98,13 +98,13 @@ export const useAuthStore = create((set, get) => ({
   connectSocket: () => {
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;
-token = localStorage.getItem("authToken");
+
+    const token = localStorage.getItem("authToken");
     const socket = io(BASE_URL, {
       withCredentials: true,
       auth: {
         token: token, // Send token to backend for Socket.io auth if needed
       },
-      withCredentials: true, // this ensures cookies are sent with the connection
     });
 
     socket.connect();
