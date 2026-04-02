@@ -15,23 +15,25 @@ function ChatContainer() {
     subscribeToMessages,
     unsubscribeFromMessages,
     isTyping,
+    markMessagesAsRead,
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
   useEffect(() => {
     getMessagesByUserId(selectedUser._id);
+    markMessagesAsRead(selectedUser._id); // Mark messages as read when opening chat
     subscribeToMessages();
 
     // clean up
     return () => unsubscribeFromMessages();
-  }, [selectedUser, getMessagesByUserId, subscribeToMessages, unsubscribeFromMessages]);
+  }, [selectedUser, getMessagesByUserId, subscribeToMessages, unsubscribeFromMessages, markMessagesAsRead]);
 
   useEffect(() => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, isTyping]); // Also scroll when typing indicator appears/disappears
 
   return (
     <div className="h-full flex flex-col" style={{ backgroundColor: "#f5f0e8" }}>

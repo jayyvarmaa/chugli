@@ -37,11 +37,25 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/chats");
-      set({ chats: res.data });
+      // Sort by most recent message first (like WhatsApp)
+      const sortedChats = res.data.sort((a, b) => {
+        const aTime = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
+        const bTime = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
+        return bTime - aTime;
+      });
+      set({ chats: sortedChats });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       set({ isUsersLoading: false });
+    }
+  },
+
+  markMessagesAsRead: async (userId) => {
+    try {
+      await axiosInstance.put(`/messages/mark-as-read/${userId}`);
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
     }
   },
 
@@ -97,6 +111,9 @@ export const useChatStore = create((set, get) => ({
 
       const currentMessages = get().messages;
       set({ messages: [...currentMessages, newMessage] });
+
+      // Refresh chat list to move this chat to top with new message
+      get().getMyChatPartners();
 
       if (isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
