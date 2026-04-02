@@ -16,6 +16,7 @@ function ChatContainer() {
     unsubscribeFromMessages,
     isTyping,
     markMessagesAsRead,
+    sendMessage,
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
@@ -34,6 +35,13 @@ function ChatContainer() {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isTyping]); // Also scroll when typing indicator appears/disappears
+
+  const handleSuggestedMessage = (message) => {
+    sendMessage({
+      text: message,
+      image: null,
+    });
+  };
 
   return (
     <div className="h-full flex flex-col" style={{ backgroundColor: "#f5f0e8" }}>
@@ -130,7 +138,7 @@ function ChatContainer() {
         ) : isMessagesLoading ? (
           <MessagesLoadingSkeleton />
         ) : (
-          <NoChatHistoryPlaceholder name={selectedUser.fullName} />
+          <NoChatHistoryPlaceholder name={selectedUser.fullName} onSendMessage={handleSuggestedMessage} />
         )}
       </div>
 
