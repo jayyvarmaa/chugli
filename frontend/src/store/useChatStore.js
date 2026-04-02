@@ -122,6 +122,12 @@ export const useChatStore = create((set, get) => ({
       }
     });
 
+    // Listen for incoming messages from any user (for real-time unread badge updates)
+    socket.on("messageNotification", (data) => {
+      // Update chat list with new message (real-time unread count)
+      get().getMyChatPartners();
+    });
+
     // Listen for typing indicator
     socket.on("userTyping", (data) => {
       if (data.userId === selectedUser._id) {
@@ -133,6 +139,7 @@ export const useChatStore = create((set, get) => ({
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket.off("newMessage");
+    socket.off("messageNotification");
     socket.off("userTyping");
   },
 

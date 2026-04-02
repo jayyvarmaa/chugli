@@ -16,7 +16,7 @@ function ChatsList() {
   if (chats.length === 0) return <NoChatsFound />;
 
   return (
-    <>
+    <div className="w-full flex flex-col gap-2 pr-2">
       {chats.map((chat) => (
         <div
           key={chat._id}
@@ -27,7 +27,6 @@ function ChatsList() {
           style={{
             backgroundColor: selectedUser?._id === chat._id ? "#ffcc00" : "#ffffff",
             border: "2px solid #1a1a1a",
-            marginBottom: "8px",
           }}
           onMouseEnter={(e) => {
             if (selectedUser?._id !== chat._id) {
@@ -71,10 +70,16 @@ function ChatsList() {
                 </h4>
                 {chat.unreadCount > 0 && (
                   <span
-                    className="text-xs font-bold text-white rounded-full w-5 h-5 flex items-center justify-center"
-                    style={{ backgroundColor: "#ff0000" }}
+                    className="text-xs font-bold text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0"
+                    style={{ 
+                      backgroundColor: "#00cc99",
+                      border: "2px solid #1a1a1a",
+                      fontSize: "11px",
+                      fontWeight: "700",
+                      minWidth: "24px",
+                    }}
                   >
-                    {chat.unreadCount}
+                    {chat.unreadCount > 99 ? "99+" : chat.unreadCount}
                   </span>
                 )}
               </div>
@@ -96,7 +101,7 @@ function ChatsList() {
           </div>
         </div>
       ))}
-    </>
+    </div>
   );
 }
 export default ChatsList;

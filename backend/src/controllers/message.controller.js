@@ -81,6 +81,12 @@ export const sendMessage = async (req, res) => {
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
+      // Also emit notification to update UI in real-time for unread badges
+      io.to(receiverSocketId).emit("messageNotification", {
+        senderId: senderId,
+        receiverId: receiverId,
+        message: newMessage,
+      });
     }
 
     res.status(201).json(newMessage);
@@ -123,10 +129,11 @@ export const getChatPartners = async (req, res) => {
           .sort({ createdAt: -1 })
           .select("text image senderId createdAt");
 
-        // Count unread messages from this partner
+        // Count unread messages from this partner (only count isRead: false)
         const unreadCount = await Message.countDocuments({
           senderId: partner._id,
           receiverId: loggedInUserId,
+          isRead: false,
         });
 
         let displayText = "";
@@ -165,8 +172,18 @@ export const markMessagesAsRead = async (req, res) => {
     const senderId = req.params.senderId;
     const receiverId = req.user._id;
 
-    // Mark all messages from sender as read (in a real app, add isRead field to schema)
-    // For now, just return success - unreadCount in getChatPartners will return 0 for opened chats
+    // Mark all messages from sender to receiver as read
+    await Message.updateMany(
+      {
+        senderId: senderId,
+        receiverId: receiverId,
+        isRead: false,
+      },
+      {
+        $set: { isRead: true },
+      }
+    );
+
     res.status(200).json({ message: "Messages marked as read" });
   } catch (error) {
     console.error("Error marking messages as read:", error.message);

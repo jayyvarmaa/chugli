@@ -190,7 +190,13 @@ function ChatPage() {
           </div>
 
           {/* LIST CONTENT */}
-          <div className="flex-1 overflow-y-auto p-2">
+          <div 
+            className="flex-1 overflow-y-auto p-2"
+            style={{ 
+              scrollBehavior: "smooth",
+              WebkitOverflowScrolling: "touch", // smooth momentum scrolling on iOS
+            }}
+          >
             {activeTab === "chats" ? <ChatsList /> : <ContactList />}
           </div>
         </div>
