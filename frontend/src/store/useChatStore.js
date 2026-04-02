@@ -56,6 +56,27 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // OPTIMIZED: Update a single chat in the list without reloading everything
+  // This prevents the entire chat list from blinking/reloading on every message
+  updateChatPartnerInList: (chatPartnerId, updates) => {
+    const { chats } = get();
+    const updatedChats = chats.map((chat) =>
+      chat._id === chatPartnerId ? { ...chat, ...updates } : chat
+    );
+    
+    // Re-sort after update to move unread chats to top if needed
+    const sortedChats = updatedChats.sort((a, b) => {
+      if ((a.unreadCount > 0) !== (b.unreadCount > 0)) {
+        return b.unreadCount > 0 ? 1 : -1;
+      }
+      const aTime = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
+      const bTime = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
+      return bTime - aTime;
+    });
+    
+    set({ chats: sortedChats });
+  },
+
   markMessagesAsRead: async (userId) => {
     try {
       await axiosInstance.put(`/messages/mark-as-read/${userId}`);
@@ -77,7 +98,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser, messages } = get();
+    const { selectedUser, messages, chats } = get();
     const { authUser } = useAuthStore.getState();
 
     const tempId = `temp-${Date.now()}`;
@@ -89,16 +110,37 @@ export const useChatStore = create((set, get) => ({
       text: messageData.text,
       image: messageData.image,
       createdAt: new Date().toISOString(),
-      isOptimistic: true, // flag to identify optimistic messages (optional)
+      isOptimistic: true,
     };
-    // immidetaly update the ui by adding the message
+    
+    // Optimistic update: add message to messages array
     set({ messages: [...messages, optimisticMessage] });
+
+    // OPTIMIZED: Do incremental chat list update instead of full reload
+    // Calculate display text
+    let displayText = "";
+    if (messageData.image && !messageData.text) {
+      displayText = "You: 📷 image";
+    } else if (messageData.image && messageData.text) {
+      displayText = "You: " + messageData.text.substring(0, 30) + " 📷";
+    } else if (messageData.text) {
+      displayText = "You: " + messageData.text.substring(0, 35);
+    }
+
+    get().updateChatPartnerInList(selectedUser._id, {
+      lastMessage: displayText,
+      lastMessageTime: new Date().toISOString(),
+    });
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: messages.concat(res.data) });
+      // Replace optimistic message with real one
+      const updatedMessages = messages.map((msg) =>
+        msg._id === tempId ? res.data : msg
+      );
+      set({ messages: updatedMessages });
     } catch (error) {
-      // remove optimistic message on failure
+      // Remove optimistic message on failure
       set({ messages: messages });
       toast.error(error.response?.data?.message || "Something went wrong");
     }
@@ -117,8 +159,23 @@ export const useChatStore = create((set, get) => ({
       const currentMessages = get().messages;
       set({ messages: [...currentMessages, newMessage] });
 
-      // Refresh chat list to move this chat to top with new message
-      get().getMyChatPartners();
+      // OPTIMIZED: Update just this chat without reloading entire list
+      // Extract last message text and update unread count incrementally
+      let displayText = "";
+      if (newMessage.image && !newMessage.text) {
+        displayText = "📷 image";
+      } else if (newMessage.image && newMessage.text) {
+        displayText = newMessage.text.substring(0, 30) + " 📷";
+      } else if (newMessage.text) {
+        displayText = newMessage.text.substring(0, 35);
+      }
+
+      get().updateChatPartnerInList(selectedUser._id, {
+        lastMessage: displayText,
+        lastMessageTime: newMessage.createdAt,
+        // Don't increment unread if message auto-marked as read (chat is active)
+        unreadCount: newMessage.isRead ? 0 : (get().chats.find(c => c._id === selectedUser._id)?.unreadCount || 0) + 1,
+      });
 
       if (isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
@@ -129,15 +186,25 @@ export const useChatStore = create((set, get) => ({
 
     // Listen for incoming messages from any user (for real-time unread badge updates)
     socket.on("messageNotification", (data) => {
-      // Update chat list with new message (real-time unread count)
-      get().getMyChatPartners();
+      // OPTIMIZED: Only update the specific chat that has new unread count
+      const chats = get().chats;
+      const chatIndex = chats.findIndex(c => c._id === data.senderId);
+      
+      if (chatIndex !== -1) {
+        get().updateChatPartnerInList(data.senderId, {
+          unreadCount: (chats[chatIndex].unreadCount || 0) + 1,
+          lastMessage: data.message?.text || "📷 image",
+          lastMessageTime: data.message?.createdAt,
+        });
+      }
     });
 
     // Listen for read receipts (when sender sees their message was read)
-    // This allows showing read status indicators
     socket.on("messageRead", (data) => {
-      // Refresh chat list to reflect read status
-      get().getMyChatPartners();
+      // OPTIMIZED: Just reset unread count for this conversation
+      get().updateChatPartnerInList(data.conversationId, {
+        unreadCount: 0,
+      });
     });
 
     // Listen for typing indicator
