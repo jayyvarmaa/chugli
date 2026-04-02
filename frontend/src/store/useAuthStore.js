@@ -127,9 +127,9 @@ export const useAuthStore = create((set, get) => ({
 
     // CRITICAL: Global message listener - catches ALL incoming messages
     // This runs regardless of which chat is open or if any chat is open
-    newSocket.on("newMessage", (newMessage) => {
+    newSocket.on("newMessage", async (newMessage) => {
       // Import useChatStore here to avoid circular dependency
-      const { useChatStore } = require("./useChatStore");
+      const { useChatStore } = await import("./useChatStore");
       const store = useChatStore.getState();
       
       // Always update the chat list with unread count and last message
