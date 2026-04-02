@@ -12,7 +12,8 @@ export const useChatStore = create((set, get) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
   isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")) === true,
-  isTyping: false, // Track if selected user is typing
+  isTyping: false,
+  pollingInterval: null, // Track polling interval ID
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -235,5 +236,48 @@ export const useChatStore = create((set, get) => ({
       recipientId: selectedUser._id,
       isTyping: isTyping,
     });
+  },
+
+  // POLLING: Check for new messages on the open chat every 0.5 seconds
+  // This is a fallback if socket events are missed and ensures real-time updates
+  startPollingMessages: () => {
+    const { selectedUser, pollingInterval } = get();
+    
+    // Clear any existing interval first
+    if (pollingInterval) clearInterval(pollingInterval);
+    if (!selectedUser) return;
+
+    // Poll every 0.5 seconds for new messages
+    const newInterval = setInterval(() => {
+      const { selectedUser: currentSelectedUser } = get();
+      if (!currentSelectedUser) {
+        clearInterval(newInterval);
+        set({ pollingInterval: null });
+        return;
+      }
+
+      get().getMessagesByUserId(currentSelectedUser._id);
+    }, 500); // 0.5 seconds
+
+    set({ pollingInterval: newInterval });
+  },
+
+  stopPollingMessages: () => {
+    const { pollingInterval } = get();
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      set({ pollingInterval: null });
+    }
+  },
+
+  // Also start polling for chat list every 1 second to catch unread updates
+  startPollingChatList: () => {
+    // Check for new messages and unread counts every 1 second
+    const chatListInterval = setInterval(() => {
+      get().getMyChatPartners();
+    }, 1000); // 1 second
+
+    set({ pollingInterval: chatListInterval });
+    return chatListInterval;
   },
 }));

@@ -6,12 +6,28 @@ import ChatsList from "../components/ChatsList";
 import ContactList from "../components/ContactList";
 import ChatContainer from "../components/ChatContainer";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
 function ChatPage() {
-  const { activeTab, selectedUser } = useChatStore();
+  const { activeTab, selectedUser, getMyChatPartners, stopPollingMessages } = useChatStore();
   const { logout, authUser, updateProfile, isUpdatingProfile } = useAuthStore();
   const fileInputRef = useRef(null);
+
+  // Start polling the chat list on page mount to catch unread updates in real-time
+  useEffect(() => {
+    // Initial load
+    getMyChatPartners();
+
+    // Poll every 1 second for chat list updates (unread counts, last message)
+    const chatListInterval = setInterval(() => {
+      getMyChatPartners();
+    }, 1000);
+
+    return () => {
+      clearInterval(chatListInterval);
+      stopPollingMessages(); // Clean up any polling when page unmounts
+    };
+  }, [getMyChatPartners, stopPollingMessages]);
 
   const handleProfilePicChange = async (e) => {
     const file = e.target.files?.[0];
