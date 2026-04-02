@@ -15,12 +15,13 @@ function ChatPage() {
 
   // Start polling the chat list on page mount to catch unread updates in real-time
   useEffect(() => {
-    // Initial load
+    // Initial load (with loading spinner)
     getMyChatPartners();
 
-    // Poll every 1 second for chat list updates (unread counts, last message)
+    // Poll every 1 second for chat list updates (BACKGROUND - no loading spinner)
     const chatListInterval = setInterval(() => {
-      getMyChatPartners();
+      const { getMyChatPartnersBackground } = useChatStore.getState();
+      getMyChatPartnersBackground();
     }, 1000);
 
     return () => {

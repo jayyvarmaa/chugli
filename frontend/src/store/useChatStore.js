@@ -57,6 +57,26 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // BACKGROUND REFRESH: Fetch chat list WITHOUT loading spinner
+  // Used by polling - silently updates unread counts and last messages in background
+  getMyChatPartnersBackground: async () => {
+    try {
+      const res = await axiosInstance.get("/messages/chats");
+      const sortedChats = res.data.sort((a, b) => {
+        if ((a.unreadCount > 0) !== (b.unreadCount > 0)) {
+          return b.unreadCount > 0 ? 1 : -1;
+        }
+        const aTime = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
+        const bTime = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
+        return bTime - aTime;
+      });
+      set({ chats: sortedChats });
+    } catch (error) {
+      // Silently fail - don't show toast on background refresh
+      console.log("Background chat list refresh failed (non-critical):", error.message);
+    }
+  },
+
   // OPTIMIZED: Update a single chat in the list without reloading everything
   // This prevents the entire chat list from blinking/reloading on every message
   updateChatPartnerInList: (chatPartnerId, updates) => {
@@ -95,6 +115,22 @@ export const useChatStore = create((set, get) => ({
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       set({ isMessagesLoading: false });
+    }
+  },
+
+  // BACKGROUND REFRESH: Fetch messages WITHOUT loading spinner
+  // Used by polling - silently updates in background
+  getMessagesByUserIdBackground: async (userId) => {
+    try {
+      const res = await axiosInstance.get(`/messages/${userId}`);
+      // Only update if there are new messages (check count)
+      const { messages: currentMessages } = get();
+      if (res.data.length !== currentMessages.length || res.data.length > 0) {
+        set({ messages: res.data });
+      }
+    } catch (error) {
+      // Silently fail - don't show toast on background refresh
+      console.log("Background message refresh failed (non-critical):", error.message);
     }
   },
 
@@ -247,7 +283,7 @@ export const useChatStore = create((set, get) => ({
     if (pollingInterval) clearInterval(pollingInterval);
     if (!selectedUser) return;
 
-    // Poll every 0.5 seconds for new messages
+    // Poll every 0.5 seconds for new messages (BACKGROUND - no loading spinner)
     const newInterval = setInterval(() => {
       const { selectedUser: currentSelectedUser } = get();
       if (!currentSelectedUser) {
@@ -256,7 +292,8 @@ export const useChatStore = create((set, get) => ({
         return;
       }
 
-      get().getMessagesByUserId(currentSelectedUser._id);
+      // Use background refresh to avoid loading spinners
+      get().getMessagesByUserIdBackground(currentSelectedUser._id);
     }, 500); // 0.5 seconds
 
     set({ pollingInterval: newInterval });
@@ -272,9 +309,9 @@ export const useChatStore = create((set, get) => ({
 
   // Also start polling for chat list every 1 second to catch unread updates
   startPollingChatList: () => {
-    // Check for new messages and unread counts every 1 second
+    // Check for new messages and unread counts every 1 second (BACKGROUND - no loading spinner)
     const chatListInterval = setInterval(() => {
-      get().getMyChatPartners();
+      get().getMyChatPartnersBackground();
     }, 1000); // 1 second
 
     set({ pollingInterval: chatListInterval });
