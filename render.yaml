@@ -3,27 +3,27 @@ services:
     name: chugli-backend
     runtime: node
     plan: free
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: backend
+    healthCheckPath: /api/auth/check
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        sync: false
-      - key: MONGO_URI
-        fromDatabase:
-          name: chugli-db
-          property: connectionString
-      - key: JWT_SECRET
-        generateValue: true
       - key: CLIENT_URL
         value: https://chugli.jayvarma.site
+      - key: EMAIL_FROM_NAME
+        value: Chugli
+      - key: ARCJET_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: RESEND_API_KEY
         sync: false
       - key: EMAIL_FROM
         sync: false
-      - key: EMAIL_FROM_NAME
-        value: Chugli
       - key: RESEND_PASSWORD_RESET_TEMPLATE_ID
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
@@ -34,20 +34,5 @@ services:
         sync: false
       - key: ARCJET_KEY
         sync: false
-      - key: ARCJET_ENV
-        value: production
-    rootDir: backend
-    healthCheckPath: /api/auth/check
-    headers:
-      - http:
-          paths:
-            - path: /socket.io
-              methods:
-                - GET
-                - POST
-              cacheControl: no-cache
 
-databases:
-  - name: chugli-db
-    engine: mongodb
-    plan: free
+
