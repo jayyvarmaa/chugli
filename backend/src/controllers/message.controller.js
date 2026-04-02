@@ -111,7 +111,34 @@ export const getChatPartners = async (req, res) => {
 
     const chatPartners = await User.find({ _id: { $in: chatPartnerIds } }).select("-password");
 
-    res.status(200).json(chatPartners);
+    // Add last message for each partner
+    const chatPartnersWithMessages = await Promise.all(
+      chatPartners.map(async (partner) => {
+        const lastMessage = await Message.findOne({
+          $or: [
+            { senderId: loggedInUserId, receiverId: partner._id },
+            { senderId: partner._id, receiverId: loggedInUserId },
+          ],
+        })
+          .sort({ createdAt: -1 })
+          .select("text senderId");
+
+        let displayText = "";
+        if (lastMessage) {
+          const isCurrentUserSender = lastMessage.senderId.toString() === loggedInUserId.toString();
+          const prefix = isCurrentUserSender ? "You: " : "";
+          displayText = prefix + lastMessage.text.substring(0, 35);
+        }
+
+        return {
+          ...partner.toObject(),
+          lastMessage: displayText,
+          unreadCount: 0,
+        };
+      })
+    );
+
+    res.status(200).json(chatPartnersWithMessages);
   } catch (error) {
     console.error("Error in getChatPartners: ", error.message);
     res.status(500).json({ error: "Internal server error" });

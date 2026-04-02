@@ -12,6 +12,7 @@ export const useChatStore = create((set, get) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
   isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")) === true,
+  isTyping: false, // Track if selected user is typing
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -99,9 +100,15 @@ export const useChatStore = create((set, get) => ({
 
       if (isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
-
-        notificationSound.currentTime = 0; // reset to start
+        notificationSound.currentTime = 0;
         notificationSound.play().catch((e) => console.log("Audio play failed:", e));
+      }
+    });
+
+    // Listen for typing indicator
+    socket.on("userTyping", (data) => {
+      if (data.userId === selectedUser._id) {
+        set({ isTyping: data.isTyping });
       }
     });
   },
@@ -109,5 +116,17 @@ export const useChatStore = create((set, get) => ({
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket.off("newMessage");
+    socket.off("userTyping");
+  },
+
+  sendTypingIndicator: (isTyping) => {
+    const { selectedUser } = get();
+    if (!selectedUser) return;
+
+    const socket = useAuthStore.getState().socket;
+    socket.emit("typing", {
+      recipientId: selectedUser._id,
+      isTyping: isTyping,
+    });
   },
 }));

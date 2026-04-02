@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import useKeyboardSound from "../hooks/useKeyboardSound";
 import { useChatStore } from "../store/useChatStore";
 import toast from "react-hot-toast";
@@ -7,10 +7,43 @@ function MessageInput() {
   const { playRandomKeyStrokeSound } = useKeyboardSound();
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
 
   const fileInputRef = useRef(null);
 
-  const { sendMessage, isSoundEnabled } = useChatStore();
+  const { sendMessage, isSoundEnabled, sendTypingIndicator } = useChatStore();
+
+  const handleTyping = (e) => {
+    const value = e.target.value;
+    setText(value);
+    isSoundEnabled && playRandomKeyStrokeSound();
+
+    // Send typing indicator
+    if (!isTyping && value.length > 0) {
+      setIsTyping(true);
+      sendTypingIndicator(true);
+    }
+
+    // Clear the timeout and set a new one
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Stop typing when user hasn't typed for 2 seconds
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      sendTypingIndicator(false);
+    }, 2000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -95,10 +128,7 @@ function MessageInput() {
         <input
           type="text"
           value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            isSoundEnabled && playRandomKeyStrokeSound();
-          }}
+          onChange={handleTyping}
           className="flex-1 px-4 py-3"
           style={{
             fontFamily: "Inter",

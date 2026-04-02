@@ -14,6 +14,7 @@ function ChatContainer() {
     isMessagesLoading,
     subscribeToMessages,
     unsubscribeFromMessages,
+    isTyping,
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
@@ -92,6 +93,36 @@ function ChatContainer() {
                 </div>
               </div>
             ))}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div
+                  className="px-4 py-3 flex items-center gap-2"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    border: "2px solid #1a1a1a",
+                    boxShadow: "4px 4px 0px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <span style={{ fontFamily: "Inter", fontSize: "12px", color: "#1a1a1a" }}>
+                    {selectedUser.fullName} is typing
+                  </span>
+                  <span className="flex gap-1">
+                    <span
+                      className="w-2 h-2 rounded-full animate-bounce"
+                      style={{ backgroundColor: "#1a1a1a", animationDelay: "0s" }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full animate-bounce"
+                      style={{ backgroundColor: "#1a1a1a", animationDelay: "0.1s" }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full animate-bounce"
+                      style={{ backgroundColor: "#1a1a1a", animationDelay: "0.2s" }}
+                    />
+                  </span>
+                </div>
+              </div>
+            )}
             <div ref={messageEndRef} />
           </div>
         ) : isMessagesLoading ? (
