@@ -11,12 +11,12 @@ export const generateToken = (userId, res) => {
     expiresIn: "7d",
   });
 
+  // Still set cookie for development, but also return token for production
   res.cookie("jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000, // MS
     httpOnly: true, // prevent XSS attacks: cross-site scripting
-    sameSite: "none", // Allow cross-origin cookie for production (frontend and backend on different domains)
+    sameSite: ENV.NODE_ENV === "development" ? "strict" : "none",
     secure: ENV.NODE_ENV === "development" ? false : true,
-    domain: ENV.NODE_ENV === "development" ? "localhost" : ".onrender.com", // Set domain for cross-origin cookies
   });
 
   return token;

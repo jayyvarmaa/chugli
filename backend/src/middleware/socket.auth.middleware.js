@@ -4,11 +4,24 @@ import { ENV } from "../lib/env.js";
 
 export const socketAuthMiddleware = async (socket, next) => {
   try {
-    // extract token from http-only cookies
-    const token = socket.handshake.headers.cookie
-      ?.split("; ")
-      .find((row) => row.startsWith("jwt="))
-      ?.split("=")[1];
+    // Try to get token from auth object first (client-side auth.token)
+    let token = socket.handshake.auth?.token;
+
+    // Fall back to Authorization header
+    if (!token) {
+      const authHeader = socket.handshake.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.slice(7);
+      }
+    }
+
+    // Fall back to cookies for development
+    if (!token) {
+      token = socket.handshake.headers.cookie
+        ?.split("; ")
+        .find((row) => row.startsWith("jwt="))
+        ?.split("=")[1];
+    }
 
     if (!token) {
       console.log("Socket connection rejected: No token provided");

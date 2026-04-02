@@ -15,9 +15,14 @@ export const useAuthStore = create((set, get) => ({
 
   checkAuth: async () => {
     try {
-      const res = await axiosInstance.get("/auth/check");
-      set({ authUser: res.data });
-      get().connectSocket();
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        const res = await axiosInstance.get("/auth/check");
+        set({ authUser: res.data });
+        get().connectSocket();
+      } else {
+        set({ authUser: null });
+      }
     } catch (error) {
       // 401 is expected when user is not logged in - don't log as error
       if (error.response?.status !== 401) {
@@ -33,6 +38,9 @@ export const useAuthStore = create((set, get) => ({
     set({ isSigningUp: true });
     try {
       const res = await axiosInstance.post("/auth/signup", data);
+      if (res.data.token) {
+        localStorage.setItem("authToken", res.data.token);
+      }
       set({ authUser: res.data });
 
       toast.success("Account created successfully!");
@@ -45,7 +53,10 @@ export const useAuthStore = create((set, get) => ({
   },
 
   login: async (data) => {
-    set({ isLoggingIn: true });
+    seif (res.data.token) {
+        localStorage.setItem("authToken", res.data.token);
+      }
+      t({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/auth/login", data);
       set({ authUser: res.data });
@@ -60,7 +71,8 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  logout: async () => {
+  logolocalStorage.removeItem("authToken");
+      ut: async () => {
     try {
       await axiosInstance.post("/auth/logout");
       set({ authUser: null });
@@ -86,8 +98,12 @@ export const useAuthStore = create((set, get) => ({
   connectSocket: () => {
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;
-
+token = localStorage.getItem("authToken");
     const socket = io(BASE_URL, {
+      withCredentials: true,
+      auth: {
+        token: token, // Send token to backend for Socket.io auth if needed
+      },
       withCredentials: true, // this ensures cookies are sent with the connection
     });
 

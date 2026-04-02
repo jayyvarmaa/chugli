@@ -4,7 +4,16 @@ import { ENV } from "../lib/env.js";
 
 export const protectRoute = async (req, res, next) => {
   try {
-    const token = req.cookies.jwt;
+    // Try to get token from Authorization header first (for cross-domain requests)
+    let token = req.cookies.jwt;
+    
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.slice(7); // Remove "Bearer " prefix
+      }
+    }
+
     if (!token) return res.status(401).json({ message: "Unauthorized - No token provided" });
 
     const decoded = jwt.verify(token, ENV.JWT_SECRET);
@@ -24,7 +33,16 @@ export const protectRoute = async (req, res, next) => {
 // Soft auth for check endpoint - returns 200 with null instead of 401
 export const checkAuth = async (req, res, next) => {
   try {
-    const token = req.cookies.jwt;
+    // Try cookie first, then Authorization header
+    let token = req.cookies.jwt;
+    
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.slice(7);
+      }
+    }
+
     if (!token) return res.status(200).json(null);
 
     const decoded = jwt.verify(token, ENV.JWT_SECRET);
