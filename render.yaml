@@ -15,7 +15,7 @@ services:
       - key: EMAIL_FROM_NAME
         value: Chugli
       - key: ARCJET_ENV
-        value: production
+        value: development
       - key: MONGO_URI
         sync: false
       - key: JWT_SECRET
