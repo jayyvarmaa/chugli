@@ -1,131 +1,41 @@
-<h1 align="center">🚀 CHUGLI - Real-Time Chat Application 🚀</h1>
+# CHUGLI - Real-Time Chat App
 
-<p align="center">
-  <strong>A modern, full-stack real-time messaging platform built with React, Node.js, and MongoDB</strong>
-</p>
+A simple, fast real-time chat application where you can send messages instantly and see who's online.
 
-![Demo App](/frontend/public/screenshot-for-readme.png)
+## What's Inside?
 
-## ✨ Key Features
+**Frontend:** React with Vite, Tailwind CSS, Socket.io for real-time updates  
+**Backend:** Node.js & Express, MongoDB for storing messages and user data  
+**Features:** Sign up, log in, create chats, send messages, upload profile pics, see online status
 
-- 🔐 **Custom JWT Authentication** - Secure user management without 3rd-party auth
-- ⚡ **Real-time Messaging** - Instant message delivery via Socket.io
-- 🟢 **Online/Offline Status** - Live presence indicators for all users
-- 🔔 **Notification Sounds** - Optional audio feedback for messages and typing
-- 📨 **Email Integration** - Welcome emails on signup via Resend
-- 🗂️ **Image Uploads** - Profile pictures stored on Cloudinary
-- 🧰 **REST API** - Fully documented Node.js & Express backend
-- 🧱 **MongoDB** - Cloud database with MongoDB Atlas
-- 🚦 **Rate Limiting** - API protection with Arcjet security
-- 🎨 **Neo-Brutalist UI** - Beautiful design with React, Tailwind CSS
-- 🧠 **State Management** - Zustand for clean global state
-- 🚀 **Cloud Ready** - Deployment guides for Railway & Vercel
+## How to Use
 
----
+1. Clone the repo
+2. Set up `.env` files in `backend/` and `frontend/` (see `.env.example`)
+3. Install dependencies: `npm install` in both folders
+4. Start backend: `npm start` in `backend/`
+5. Start frontend: `npm run dev` in `frontend/`
+6. Open http://localhost:5173 and start chatting
 
-## 📋 Tech Stack
+## Deployed At
 
-**Frontend:**
-- React 19 | Vite | React Router | Socket.io Client
-- Tailwind CSS | Zustand | Axios
+- Frontend: https://chugli.jayvarma.site (Vercel)
+- Backend: https://api.chugli.jayvarma.site (Railway)
+
+## Environment Variables Needed
 
 **Backend:**
-- Node.js | Express | Mongoose | Socket.io
-- JWT | bcryptjs | Cloudinary | Resend | Arcjet
+- `MONGO_URI` - MongoDB connection string
+- `JWT_SECRET` - Secret for token generation
+- `CLOUDINARY_*` - Image upload
+- `RESEND_API_KEY` - Email sending
+- `ARCJET_KEY` - Rate limiting
 
-**Database & Services:**
-- MongoDB Atlas | Cloudinary | Resend | Arcjet
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js v16+ 
-- MongoDB Atlas account
-- Cloudinary account
-- Resend account (optional for emails)
-
-### Installation & Setup
-
-**Backend Setup:**
-```bash
-cd chugli/backend
-npm install
-# Create .env file with your credentials
-npm run dev
-# Runs on http://localhost:3000
-```
-
-**Frontend Setup:**
-```bash
-cd chugli/frontend
-npm install
-npm run dev
-# Runs on http://localhost:5173
-```
-
-### Environment Variables
-
-See `backend/.env.example` and `frontend/.env.example` for required variables.
+**Frontend:**
+- `VITE_BACKEND_URL` - Backend API URL
 
 ---
 
-## 📚 Documentation
-
-- **[Deployment Guide](../DEPLOYMENT.md)** - Deploy to Railway (backend) & Vercel (frontend)
-- **[Project Report](../PROJECT_REPORT.md)** - Detailed architecture & implementation guide
-
----
-
-## 🎯 Features in Detail
-
-### Authentication
-- User registration with email validation
-- Secure login with JWT tokens
-- HTTP-only cookies for token storage
-- Auto-login on page reload
-
-### Real-Time Chat
-- Send text messages instantly
-- Share images via file upload
-- See message history with any user
-- Typing indicators
-- Online/offline status
-
-### User Management
-- Search users by name or email
-- View all registered users
-- Update profile picture
-- Contact list management
-
----
-
-## 📦 Build & Deploy
-
-**Build for Production:**
-```bash
-npm run build
-```
-
-**Deploy:**
-- **Frontend:** Vercel (auto-deploy from GitHub)
-- **Backend:** Railway (persistent server for Socket.io)
-
-See [DEPLOYMENT.md](../DEPLOYMENT.md) for step-by-step instructions.
-
----
-
-## 🎓 Course Project
-
-Built for **SEIT3241 - Full Stack Development** (Semester 6)
-
-**Developer:** @jayyvarmaa  
-**Date:** April 2026  
-**Status:** ✅ Complete & Production-Ready
-
----
-
-## 📄 License
-
-ISC
+**Built by:** Jayyvarmaa  
+**Course:** SEIT3241 - Full Stack Development  
+**Date:** April 2026
