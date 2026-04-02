@@ -100,28 +100,3 @@ function ChatsList() {
   );
 }
 export default ChatsList;
-                  style={{
-                    backgroundColor: "#0055ff",
-                    border: "2px solid #ffffff",
-                    borderRadius: "50%",
-                  }}
-                />
-              )}
-            </div>
-
-            {/* CHAT INFO */}
-            <div className="flex-1 min-w-0">
-              <h4 className="font-semibold truncate" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", fontSize: "14px" }}>
-                {chat.fullName}
-              </h4>
-              <p style={{ fontFamily: "Inter", color: "#1a1a1a", fontSize: "12px", opacity: 0.6 }}>
-                {onlineUsers.includes(chat._id) ? "ONLINE" : "OFFLINE"}
-              </p>
-            </div>
-          </div>
-        </div>
-      ))}
-    </>
-  );
-}
-export default ChatsList;
