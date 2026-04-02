@@ -134,14 +134,17 @@ export const useChatStore = create((set, get) => ({
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      // Replace optimistic message with real one
-      const updatedMessages = messages.map((msg) =>
+      // Use current state, not captured reference, to properly replace optimistic message
+      const currentMessages = get().messages;
+      const updatedMessages = currentMessages.map((msg) =>
         msg._id === tempId ? res.data : msg
       );
       set({ messages: updatedMessages });
     } catch (error) {
       // Remove optimistic message on failure
-      set({ messages: messages });
+      const currentMessages = get().messages;
+      const filteredMessages = currentMessages.filter(msg => msg._id !== tempId);
+      set({ messages: filteredMessages });
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   },
