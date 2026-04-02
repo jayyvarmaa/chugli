@@ -37,8 +37,13 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/chats");
-      // Sort by most recent message first (like WhatsApp)
+      // Sort: prioritize unread conversations at top, then by most recent message (WhatsApp behavior)
       const sortedChats = res.data.sort((a, b) => {
+        // FIRST: Conversations with unread messages float to top
+        if ((a.unreadCount > 0) !== (b.unreadCount > 0)) {
+          return b.unreadCount > 0 ? 1 : -1;
+        }
+        // SECOND: Within each group, sort by most recent message timestamp
         const aTime = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
         const bTime = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
         return bTime - aTime;
@@ -128,6 +133,13 @@ export const useChatStore = create((set, get) => ({
       get().getMyChatPartners();
     });
 
+    // Listen for read receipts (when sender sees their message was read)
+    // This allows showing read status indicators
+    socket.on("messageRead", (data) => {
+      // Refresh chat list to reflect read status
+      get().getMyChatPartners();
+    });
+
     // Listen for typing indicator
     socket.on("userTyping", (data) => {
       if (data.userId === selectedUser._id) {
@@ -140,6 +152,7 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
     socket.off("newMessage");
     socket.off("messageNotification");
+    socket.off("messageRead");
     socket.off("userTyping");
   },
 

@@ -65,18 +65,33 @@ function ChatsList() {
             {/* CHAT INFO */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
-                <h4 className="font-semibold truncate" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", fontSize: "14px" }}>
+                {/* Bold text for unread conversations (accessibility: helps color-blind users per spec) */}
+                <h4 
+                  className="truncate" 
+                  style={{ 
+                    fontFamily: "Space Grotesk", 
+                    color: "#1a1a1a", 
+                    fontSize: "14px",
+                    fontWeight: chat.unreadCount > 0 ? "700" : "600",  // Bold when unread
+                  }}
+                >
                   {chat.fullName}
                 </h4>
                 {chat.unreadCount > 0 && (
                   <span
-                    className="text-xs font-bold text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0"
+                    aria-label={`${chat.unreadCount} unread messages`}
+                    className="text-xs font-bold text-white flex items-center justify-center flex-shrink-0"
                     style={{ 
                       backgroundColor: "#00cc99",
                       border: "2px solid #1a1a1a",
                       fontSize: "11px",
                       fontWeight: "700",
                       minWidth: "24px",
+                      height: "24px",
+                      padding: chat.unreadCount > 9 ? "2px 6px" : "0px",
+                      borderRadius: chat.unreadCount > 9 ? "12px" : "50%",
+                      transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)", // Spring animation
+                      animation: "pulse 0.3s ease-out",
                     }}
                   >
                     {chat.unreadCount > 99 ? "99+" : chat.unreadCount}

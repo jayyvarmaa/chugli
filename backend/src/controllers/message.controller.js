@@ -1,5 +1,5 @@
 import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import { getReceiverSocketId, io, getUserActiveChat } from "../lib/socket.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
 
@@ -80,13 +80,37 @@ export const sendMessage = async (req, res) => {
 
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
+      // CRITICAL: Check if receiver currently has THIS chat open
+      // Per spec: "IF recipient.activeConversationId != this.conversationId OR recipient.appState != FOREGROUND THEN increment"
+      const receiverActiveChat = getUserActiveChat(receiverId.toString());
+      const isChatActive = receiverActiveChat === senderId.toString();
+      
+      // If receiver has the chat open, auto-mark as read (they're actively reading)
+      if (isChatActive) {
+        newMessage.isRead = true;
+        await newMessage.save();
+      }
+
       io.to(receiverSocketId).emit("newMessage", newMessage);
-      // Also emit notification to update UI in real-time for unread badges
-      io.to(receiverSocketId).emit("messageNotification", {
-        senderId: senderId,
-        receiverId: receiverId,
-        message: newMessage,
-      });
+      
+      // Only emit unread notification if chat is NOT active
+      if (!isChatActive) {
+        io.to(receiverSocketId).emit("messageNotification", {
+          senderId: senderId,
+          receiverId: receiverId,
+          message: newMessage,
+        });
+      } else {
+        // Chat is open, send immediate read receipt to sender
+        const senderSocketId = getReceiverSocketId(senderId);
+        if (senderSocketId) {
+          io.to(senderSocketId).emit("messageRead", {
+            conversationId: receiverId,
+            readBy: receiverId,
+            messageId: newMessage._id,
+          });
+        }
+      }
     }
 
     res.status(201).json(newMessage);
@@ -172,8 +196,8 @@ export const markMessagesAsRead = async (req, res) => {
     const senderId = req.params.senderId;
     const receiverId = req.user._id;
 
-    // Mark all messages from sender to receiver as read
-    await Message.updateMany(
+    // Mark all messages from sender to receiver as read (server-side source of truth)
+    const result = await Message.updateMany(
       {
         senderId: senderId,
         receiverId: receiverId,
@@ -184,7 +208,20 @@ export const markMessagesAsRead = async (req, res) => {
       }
     );
 
-    res.status(200).json({ message: "Messages marked as read" });
+    // Broadcast read receipt to sender in real-time
+    const senderSocketId = getReceiverSocketId(senderId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("messageRead", {
+        conversationId: receiverId,
+        readBy: receiverId,
+        count: result.modifiedCount, // How many messages were marked read
+      });
+    }
+
+    res.status(200).json({ 
+      message: "Messages marked as read",
+      markedCount: result.modifiedCount 
+    });
   } catch (error) {
     console.error("Error marking messages as read:", error.message);
     res.status(500).json({ error: "Internal server error" });

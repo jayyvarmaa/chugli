@@ -26,8 +26,16 @@ function ChatContainer() {
     markMessagesAsRead(selectedUser._id); // Mark messages as read when opening chat
     subscribeToMessages();
 
-    // clean up
-    return () => unsubscribeFromMessages();
+    // CRITICAL: Broadcast to backend that this chat is now ACTIVE
+    // This is per the spec: backend checks if chat is active to decide whether to increment unread
+    const socket = useAuthStore.getState().socket;
+    socket.emit("openChat", selectedUser._id);
+
+    // Cleanup: Tell backend when chat closes (e.g., user navigates away)
+    return () => {
+      unsubscribeFromMessages();
+      socket.emit("closeChat");
+    };
   }, [selectedUser, getMessagesByUserId, subscribeToMessages, unsubscribeFromMessages, markMessagesAsRead]);
 
   useEffect(() => {

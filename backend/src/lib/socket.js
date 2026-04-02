@@ -26,6 +26,7 @@ export function getReceiverSocketId(userId) {
 
 // this is for storig online users
 const userSocketMap = {}; // {userId:socketId}
+const userActiveChatMap = {}; // {userId:chatPartnerId} - tracks which chat user has open
 
 io.on("connection", (socket) => {
   console.log("A user connected", socket.user.fullName);
@@ -35,6 +36,19 @@ io.on("connection", (socket) => {
 
   // io.emit() is used to send events to all connected clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+  // CRITICAL: Track which chat user currently has open
+  // Prevents messages from incrementing unread if chat is active
+  socket.on("openChat", (chatPartnerId) => {
+    userActiveChatMap[userId] = chatPartnerId;
+    console.log(`${socket.user.fullName} opened chat with ${chatPartnerId}`);
+  });
+
+  // Clean up when user closes chat
+  socket.on("closeChat", () => {
+    delete userActiveChatMap[userId];
+    console.log(`${socket.user.fullName} closed chat`);
+  });
 
   // Listen for typing indicator
   socket.on("typing", (data) => {
@@ -51,8 +65,14 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.user.fullName);
     delete userSocketMap[userId];
+    delete userActiveChatMap[userId];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
+
+// Export active chat tracking for message controller
+export function getUserActiveChat(userId) {
+  return userActiveChatMap[userId];
+}
 
 export { io, app, server };
