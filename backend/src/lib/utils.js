@@ -16,6 +16,7 @@ export const generateToken = (userId, res) => {
     httpOnly: true, // prevent XSS attacks: cross-site scripting
     sameSite: "none", // Allow cross-origin cookie for production (frontend and backend on different domains)
     secure: ENV.NODE_ENV === "development" ? false : true,
+    domain: ENV.NODE_ENV === "development" ? "localhost" : ".onrender.com", // Set domain for cross-origin cookies
   });
 
   return token;
