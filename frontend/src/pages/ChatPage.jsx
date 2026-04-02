@@ -146,9 +146,9 @@ function ChatPage() {
       </div>
 
       {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex h-full">
         {/* LEFT PANEL - CHAT/CONTACT LIST */}
-        <div className="w-80 flex flex-col" style={{ borderRight: "2px solid #1a1a1a" }}>
+        <div className="w-80 flex flex-col h-full" style={{ borderRight: "2px solid #1a1a1a" }}>
           {/* HEADER */}
           <div className="p-6" style={{ borderBottom: "4px solid #1a1a1a" }}>
             <div className="flex items-baseline gap-3 mb-4">
@@ -191,10 +191,10 @@ function ChatPage() {
 
           {/* LIST CONTENT */}
           <div 
-            className="flex-1 overflow-y-auto p-2"
+            className="flex-1 overflow-y-auto p-2 min-h-0"
             style={{ 
               scrollBehavior: "smooth",
-              WebkitOverflowScrolling: "touch", // smooth momentum scrolling on iOS
+              WebkitOverflowScrolling: "touch",
             }}
           >
             {activeTab === "chats" ? <ChatsList /> : <ContactList />}
