@@ -121,13 +121,21 @@ export const getChatPartners = async (req, res) => {
           ],
         })
           .sort({ createdAt: -1 })
-          .select("text senderId");
+          .select("text image senderId");
 
         let displayText = "";
         if (lastMessage) {
           const isCurrentUserSender = lastMessage.senderId.toString() === loggedInUserId.toString();
           const prefix = isCurrentUserSender ? "You: " : "";
-          displayText = prefix + lastMessage.text.substring(0, 35);
+          
+          // Check if last message is an image or has both text and image
+          if (lastMessage.image && !lastMessage.text) {
+            displayText = prefix + "📷 image";
+          } else if (lastMessage.image && lastMessage.text) {
+            displayText = prefix + lastMessage.text.substring(0, 30) + " 📷";
+          } else if (lastMessage.text) {
+            displayText = prefix + lastMessage.text.substring(0, 35);
+          }
         }
 
         return {
