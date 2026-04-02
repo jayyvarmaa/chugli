@@ -1,0 +1,39 @@
+import express from "express";
+import cookieParser from "cookie-parser";
+import path from "path";
+import cors from "cors";
+
+import authRoutes from "./routes/auth.route.js";
+import messageRoutes from "./routes/message.route.js";
+import { connectDB } from "./lib/db.js";
+import { ENV } from "./lib/env.js";
+import { app, server } from "./lib/socket.js";
+
+const __dirname = path.resolve();
+
+const PORT = ENV.PORT || 3000;
+
+const CORS_ORIGIN = ENV.CLIENT_URL || "http://localhost:5173";
+
+// Increase request size limit to 100MB for handling large images without compression
+app.use(express.json({ limit: "100mb" })); // req.body
+app.use(express.urlencoded({ limit: "100mb", extended: true }));
+app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
+app.use(cookieParser());
+
+app.use("/api/auth", authRoutes);
+app.use("/api/messages", messageRoutes);
+
+// make ready for deployment
+if (ENV.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (_, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
+
+server.listen(PORT, () => {
+  console.log("Server running on port: " + PORT);
+  connectDB();
+});
