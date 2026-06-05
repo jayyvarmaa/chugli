@@ -17,8 +17,6 @@ const PORT = ENV.PORT || 3000;
 
 const CORS_ORIGIN = ENV.CLIENT_URL ? ENV.CLIENT_URL.split(",") : "http://localhost:5173";
 
-console.log("CORS_ORIGIN configured as:", CORS_ORIGIN);
-
 // Increase request size limit to 100MB for handling large images without compression
 app.use(express.json({ limit: "100mb" })); // req.body
 app.use(express.urlencoded({ limit: "100mb", extended: true }));

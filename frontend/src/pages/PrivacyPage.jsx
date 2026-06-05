@@ -1,7 +1,13 @@
 const PrivacyPage = () => {
   return (
-    <div className="max-w-3xl w-full z-10 bg-slate-800/80 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6 animate-fade-in overflow-y-auto max-h-[80vh]">
-      <h1 className="text-3xl font-bold text-white">Privacy Policy</h1>
+    <div className="min-h-screen bg-slate-900 relative flex items-center justify-center p-4 overflow-hidden">
+      {/* DECORATORS - GRID BG & GLOW SHAPES */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]" />
+      <div className="absolute top-0 -left-4 size-96 bg-pink-500 opacity-20 blur-[100px]" />
+      <div className="absolute bottom-0 -right-4 size-96 bg-cyan-500 opacity-20 blur-[100px]" />
+
+      <div className="max-w-3xl w-full z-10 bg-slate-800/80 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6 animate-fade-in overflow-y-auto max-h-[80vh]">
+        <h1 className="text-3xl font-bold text-white">Privacy Policy</h1>
       <p className="text-slate-400 text-sm">Last Updated: June 5, 2026</p>
 
       <section className="space-y-4">

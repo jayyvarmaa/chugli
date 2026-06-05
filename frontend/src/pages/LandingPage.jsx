@@ -2,8 +2,14 @@ import { Link } from "react-router";
 
 const LandingPage = () => {
   return (
-    <div className="max-w-4xl w-full z-10 text-center space-y-8 animate-fade-in">
-      <div className="space-y-4">
+    <div className="min-h-screen bg-slate-900 relative flex items-center justify-center p-4 overflow-hidden">
+      {/* DECORATORS - GRID BG & GLOW SHAPES */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]" />
+      <div className="absolute top-0 -left-4 size-96 bg-pink-500 opacity-20 blur-[100px]" />
+      <div className="absolute bottom-0 -right-4 size-96 bg-cyan-500 opacity-20 blur-[100px]" />
+
+      <div className="max-w-4xl w-full z-10 text-center space-y-8 animate-fade-in">
+        <div className="space-y-4">
         <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tight">
           Welcome to <span className="text-primary-500 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-cyan-500">Chugli</span>
         </h1>
