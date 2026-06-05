@@ -1,4 +1,6 @@
 import { Navigate, Route, Routes } from "react-router";
+import LandingPage from "./pages/LandingPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import ChatPage from "./pages/ChatPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
@@ -27,10 +29,12 @@ function App() {
       <div className="absolute bottom-0 -right-4 size-96 bg-cyan-500 opacity-20 blur-[100px]" />
 
       <Routes>
-        <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
-        <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
-        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
-        <Route path="/forgot-password" element={!authUser ? <ForgotPasswordPage /> : <Navigate to={"/"} />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/chat" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/chat"} />} />
+        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/chat"} />} />
+        <Route path="/forgot-password" element={!authUser ? <ForgotPasswordPage /> : <Navigate to={"/chat"} />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
       </Routes>
 
