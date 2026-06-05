@@ -5,9 +5,6 @@
 
 # Dependencies
 node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 
 # Build artifacts
 dist/
@@ -23,6 +20,10 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+firebase-debug.log*
+
+# Firebase
+.firebase/
 
 # Editor & IDE
 .vscode/
@@ -52,6 +53,10 @@ ehthumbs.db
 # Test coverage
 coverage/
 .nyc_output/
+
+# Misc
+.eslintcache
+.cache/
 
 # Temporary files
 *.tmp
