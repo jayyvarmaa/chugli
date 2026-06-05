@@ -2,6 +2,9 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore";
+import { createLogger } from "../lib/logger";
+
+const logger = createLogger("CHAT", false);
 
 export const useChatStore = create((set, get) => ({
   allContacts: [],
@@ -73,7 +76,7 @@ export const useChatStore = create((set, get) => ({
       set({ chats: sortedChats });
     } catch (error) {
       // Silently fail - don't show toast on background refresh
-      console.log("Background chat list refresh failed (non-critical):", error.message);
+      logger.log("Background chat list refresh failed (non-critical):", error.message);
     }
   },
 
@@ -102,7 +105,7 @@ export const useChatStore = create((set, get) => ({
     try {
       await axiosInstance.put(`/messages/mark-as-read/${userId}`);
     } catch (error) {
-      console.error("Error marking messages as read:", error);
+      logger.error("Error marking messages as read:", error);
     }
   },
 
@@ -130,7 +133,7 @@ export const useChatStore = create((set, get) => ({
       }
     } catch (error) {
       // Silently fail - don't show toast on background refresh
-      console.log("Background message refresh failed (non-critical):", error.message);
+      logger.log("Background message refresh failed (non-critical):", error.message);
     }
   },
 
@@ -220,7 +223,7 @@ export const useChatStore = create((set, get) => ({
       if (isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
         notificationSound.currentTime = 0;
-        notificationSound.play().catch((e) => console.log("Audio play failed:", e));
+        notificationSound.play().catch((e) => logger.error("Audio play failed:", e));
       }
     });
 
@@ -263,7 +266,84 @@ export const useChatStore = create((set, get) => ({
     socket.off("userTyping");
   },
 
-  sendTypingIndicator: (isTyping) => {
+  // --- CHANNEL SPECIFIC FUNCTIONS ---
+  selectedChannel: null,
+  setSelectedChannel: (channel) => set({ selectedChannel: channel, selectedUser: null }),
+
+  getMessagesByChannelId: async (channelId) => {
+    set({ isMessagesLoading: true });
+    try {
+      const res = await axiosInstance.get(`/messages/channel/${channelId}`);
+      set({ messages: res.data });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch channel messages");
+    } finally {
+      set({ isMessagesLoading: false });
+    }
+  },
+
+  sendChannelMessage: async (channelId, messageData) => {
+    const { messages } = get();
+    const { authUser } = useAuthStore.getState();
+
+    const tempId = `temp-${Date.now()}`;
+
+    const optimisticMessage = {
+      _id: tempId,
+      senderId: authUser, // Populate mock
+      channelId: channelId,
+      text: messageData.text,
+      image: messageData.image,
+      createdAt: new Date().toISOString(),
+      isOptimistic: true,
+    };
+    
+    set({ messages: [...messages, optimisticMessage] });
+
+    try {
+      const res = await axiosInstance.post(`/messages/channel/send/${channelId}`, messageData);
+      const currentMessages = get().messages;
+      const updatedMessages = currentMessages.map((msg) =>
+        msg._id === tempId ? res.data : msg
+      );
+      set({ messages: updatedMessages });
+    } catch (error) {
+      const currentMessages = get().messages;
+      const filteredMessages = currentMessages.filter(msg => msg._id !== tempId);
+      set({ messages: filteredMessages });
+      toast.error(error.response?.data?.message || "Failed to send message");
+    }
+  },
+
+  subscribeToChannelMessages: (channelId) => {
+    const { isSoundEnabled } = get();
+    const socket = useAuthStore.getState().socket;
+
+    socket.on("newMessage", (newMessage) => {
+      // Only process if it belongs to the current channel
+      if (newMessage.channelId !== channelId) return;
+
+      const currentMessages = get().messages;
+      // Prevent duplicates from sender
+      if (!currentMessages.some(m => m._id === newMessage._id)) {
+        set({ messages: [...currentMessages, newMessage] });
+
+        if (isSoundEnabled && newMessage.senderId._id !== useAuthStore.getState().authUser._id) {
+          const notificationSound = new Audio("/sounds/notification.mp3");
+          notificationSound.currentTime = 0;
+          notificationSound.play().catch((e) => logger.error("Audio play failed:", e));
+        }
+      }
+    });
+  },
+
+  unsubscribeFromChannelMessages: () => {
+    const socket = useAuthStore.getState().socket;
+    socket.off("newMessage");
+  },
+  // ----------------------------------
+
+  sendTypingIndicator: (isTyping, channelId = null) => {
     const { selectedUser } = get();
     if (!selectedUser) return;
 

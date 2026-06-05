@@ -16,52 +16,75 @@ const io = new Server(server, {
   },
 });
 
-// apply authentication middleware to all socket connections
 io.use(socketAuthMiddleware);
 
-// we will use this function to check if the user is online or not
 export function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }
 
-// this is for storig online users
 const userSocketMap = {}; // {userId:socketId}
-const userActiveChatMap = {}; // {userId:chatPartnerId} - tracks which chat user has open
+const userActiveChatMap = {}; // {userId:chatPartnerIdOrChannelId}
 
 io.on("connection", (socket) => {
   console.log("A user connected", socket.user.fullName);
-
   const userId = socket.userId;
   userSocketMap[userId] = socket.id;
 
-  // io.emit() is used to send events to all connected clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-  // CRITICAL: Track which chat user currently has open
-  // Prevents messages from incrementing unread if chat is active
-  socket.on("openChat", (chatPartnerId) => {
-    userActiveChatMap[userId] = chatPartnerId;
-    console.log(`${socket.user.fullName} opened chat with ${chatPartnerId}`);
+  socket.on("openChat", (chatId) => {
+    userActiveChatMap[userId] = chatId;
+    socket.join(chatId); // Join a room for the channel or DM
+    console.log(`${socket.user.fullName} joined chat/channel ${chatId}`);
   });
 
-  // Clean up when user closes chat
-  socket.on("closeChat", () => {
+  socket.on("closeChat", (chatId) => {
     delete userActiveChatMap[userId];
-    console.log(`${socket.user.fullName} closed chat`);
+    if (chatId) socket.leave(chatId);
+    console.log(`${socket.user.fullName} left chat/channel`);
   });
 
-  // Listen for typing indicator
   socket.on("typing", (data) => {
-    const receiverSocketId = getReceiverSocketId(data.recipientId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("userTyping", {
+    if (data.channelId) {
+      socket.to(data.channelId).emit("userTyping", {
         userId: userId,
         isTyping: data.isTyping,
       });
+    } else {
+      const receiverSocketId = getReceiverSocketId(data.recipientId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("userTyping", {
+          userId: userId,
+          isTyping: data.isTyping,
+        });
+      }
     }
   });
 
-  // with socket.on we listen for events from clients
+  // --- WebRTC Signaling ---
+  socket.on("joinVoiceChannel", (channelId) => {
+    socket.join(`voice-${channelId}`);
+    socket.to(`voice-${channelId}`).emit("userJoinedVoice", { userId, socketId: socket.id });
+    console.log(`${socket.user.fullName} joined voice channel ${channelId}`);
+  });
+
+  socket.on("leaveVoiceChannel", (channelId) => {
+    socket.leave(`voice-${channelId}`);
+    socket.to(`voice-${channelId}`).emit("userLeftVoice", { userId, socketId: socket.id });
+    console.log(`${socket.user.fullName} left voice channel ${channelId}`);
+  });
+
+  // Relay WebRTC signals
+  socket.on("webrtcSignal", (data) => {
+    // data: { targetSocketId, signal }
+    io.to(data.targetSocketId).emit("webrtcSignal", {
+      senderSocketId: socket.id,
+      senderUserId: userId,
+      signal: data.signal
+    });
+  });
+  // -------------------------
+
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.user.fullName);
     delete userSocketMap[userId];
@@ -70,7 +93,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// Export active chat tracking for message controller
 export function getUserActiveChat(userId) {
   return userActiveChatMap[userId];
 }

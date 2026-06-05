@@ -1,91 +1,94 @@
-import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId, io, getUserActiveChat } from "../lib/socket.js";
-import Message from "../models/Message.js";
 import User from "../models/User.js";
+import Message from "../models/message.model.js";
+import cloudinary from "../lib/cloudinary.js";
+import { getReceiverSocketId, io } from "../lib/socket.js";
+import mongoose from "mongoose";
+import { createLogger } from "../lib/logger.js";
+
+const logger = createLogger("CHAT", false);
 
 export const getAllContacts = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
-    const filteredUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
-
-    res.status(200).json(filteredUsers);
+    const users = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+    res.status(200).json(users);
   } catch (error) {
-    console.log("Error in getAllContacts:", error);
-    res.status(500).json({ message: "Server error" });
+    logger.error("Error in getAllContacts:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const getMessagesByUserId = async (req, res) => {
+export const getMessages = async (req, res) => {
   try {
-    const myId = req.user._id;
     const { id: userToChatId } = req.params;
+    const myId = req.user._id;
 
     const messages = await Message.find({
       $or: [
         { senderId: myId, receiverId: userToChatId },
         { senderId: userToChatId, receiverId: myId },
       ],
-    });
+    }).sort({ createdAt: 1 });
 
     res.status(200).json(messages);
   } catch (error) {
-    console.log("Error in getMessages controller: ", error.message);
+    logger.error("Error in getMessages controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image } = req.body;
+    const { text, image, replyToId } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
-    if (!text && !image) {
-      return res.status(400).json({ message: "Text or image is required." });
-    }
-    if (senderId.equals(receiverId)) {
-      return res.status(400).json({ message: "Cannot send messages to yourself." });
-    }
-    const receiverExists = await User.exists({ _id: receiverId });
-    if (!receiverExists) {
-      return res.status(404).json({ message: "Receiver not found." });
-    }
+    let imageUrl = null;
+    let imageWidth = null;
+    let imageHeight = null;
 
-    let imageUrl;
     if (image) {
       try {
-        // Upload without any compression - keep original quality
         const uploadResponse = await cloudinary.uploader.upload(image, {
-          resource_type: "auto",
           folder: "chugli_messages",
+          resource_type: "auto",
         });
         imageUrl = uploadResponse.secure_url;
+        imageWidth = uploadResponse.width;
+        imageHeight = uploadResponse.height;
       } catch (cloudinaryError) {
-        console.error("Cloudinary upload error:", cloudinaryError);
-        return res.status(500).json({ 
-          message: "Failed to upload image",
-          error: cloudinaryError.message 
-        });
+        logger.error("Cloudinary upload error:", cloudinaryError);
+        return res.status(500).json({ error: "Failed to upload image" });
+      }
+    }
+
+    let resolvedReplyToId = null;
+    if (replyToId) {
+      const replyExists = await Message.exists({ _id: replyToId });
+      if (replyExists) {
+        resolvedReplyToId = replyToId;
       }
     }
 
     const newMessage = new Message({
       senderId,
       receiverId,
-      text,
+      text: text || "",
       image: imageUrl,
+      imageWidth,
+      imageHeight,
+      replyToId: resolvedReplyToId,
+      read: false,
     });
 
     await newMessage.save();
 
+    // Populate reply message to send back to clients
+    const populatedMessage = await Message.findById(newMessage._id)
+      .populate("replyToId", "text image senderId");
+
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
-      // CRITICAL: Check if receiver currently has THIS chat open
-      // Per spec: "IF recipient.activeConversationId != this.conversationId OR recipient.appState != FOREGROUND THEN increment"
-      const receiverActiveChat = getUserActiveChat(receiverId.toString());
-      const isChatActive = receiverActiveChat === senderId.toString();
-      
-      // If receiver has the chat open, auto-mark as read (they're actively reading)
       if (isChatActive) {
         newMessage.isRead = true;
         await newMessage.save();
@@ -115,7 +118,7 @@ export const sendMessage = async (req, res) => {
 
     res.status(201).json(newMessage);
   } catch (error) {
-    console.log("Error in sendMessage controller: ", error.message);
+    logger.error("Error in sendMessage controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -186,7 +189,7 @@ export const getChatPartners = async (req, res) => {
 
     res.status(200).json(chatPartnersWithMessages);
   } catch (error) {
-    console.error("Error in getChatPartners: ", error.message);
+    logger.error("Error in getChatPartners: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -223,7 +226,63 @@ export const markMessagesAsRead = async (req, res) => {
       markedCount: result.modifiedCount 
     });
   } catch (error) {
-    console.error("Error marking messages as read:", error.message);
+    logger.error("Error marking messages as read:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getChannelMessages = async (req, res) => {
+  try {
+    const { channelId } = req.params;
+    const messages = await Message.find({ channelId }).populate("senderId", "fullName profilePic");
+    res.status(200).json(messages);
+  } catch (error) {
+    logger.error("Error in getChannelMessages controller: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const sendChannelMessage = async (req, res) => {
+  try {
+    const { text, image } = req.body;
+    const { channelId } = req.params;
+    const senderId = req.user._id;
+
+    if (!text && !image) {
+      return res.status(400).json({ message: "Text or image is required." });
+    }
+
+    let imageUrl;
+    if (image) {
+      try {
+        const uploadResponse = await cloudinary.uploader.upload(image, {
+          resource_type: "auto",
+          folder: "chugli_messages",
+        });
+        imageUrl = uploadResponse.secure_url;
+      } catch (cloudinaryError) {
+        return res.status(500).json({ message: "Failed to upload image" });
+      }
+    }
+
+    const newMessage = new Message({
+      senderId,
+      channelId,
+      text,
+      image: imageUrl,
+    });
+
+    await newMessage.save();
+
+    // Populate sender info before broadcasting
+    await newMessage.populate("senderId", "fullName profilePic");
+
+    // Broadcast to the channel room via socket.io
+    io.to(channelId).emit("newMessage", newMessage);
+
+    res.status(201).json(newMessage);
+  } catch (error) {
+    logger.error("Error in sendChannelMessage controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };

@@ -1,40 +1,40 @@
-import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { ENV } from "../lib/env.js";
+import { firebaseAdmin } from "../lib/firebase.js";
 
 export const protectRoute = async (req, res, next) => {
   try {
-    // Try to get token from Authorization header first (for cross-domain requests)
-    let token = req.cookies.jwt;
+    let token = req.cookies.jwt || req.cookies.authToken;
     
     if (!token) {
       const authHeader = req.headers.authorization;
       if (authHeader && authHeader.startsWith("Bearer ")) {
-        token = authHeader.slice(7); // Remove "Bearer " prefix
+        token = authHeader.slice(7);
       }
     }
 
     if (!token) return res.status(401).json({ message: "Unauthorized - No token provided" });
 
-    const decoded = jwt.verify(token, ENV.JWT_SECRET);
-    if (!decoded) return res.status(401).json({ message: "Unauthorized - Invalid token" });
+    // Verify Firebase ID Token
+    const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+    if (!decodedToken) return res.status(401).json({ message: "Unauthorized - Invalid token" });
 
-    const user = await User.findById(decoded.userId).select("-password");
+    // Find user by firebaseUid instead of _id if we want, but for now we look up by email or firebaseUid.
+    // If user model has firebaseUid, we should search by that.
+    // Assuming we added firebaseUid to User schema during signup.
+    const user = await User.findOne({ firebaseUid: decodedToken.uid }).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     req.user = user;
     next();
   } catch (error) {
     console.log("Error in protectRoute middleware:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(401).json({ message: "Unauthorized - Invalid or expired token" });
   }
 };
 
-// Soft auth for check endpoint - returns 200 with null instead of 401
 export const checkAuth = async (req, res, next) => {
   try {
-    // Try cookie first, then Authorization header
-    let token = req.cookies.jwt;
+    let token = req.cookies.jwt || req.cookies.authToken;
     
     if (!token) {
       const authHeader = req.headers.authorization;
@@ -45,10 +45,10 @@ export const checkAuth = async (req, res, next) => {
 
     if (!token) return res.status(200).json(null);
 
-    const decoded = jwt.verify(token, ENV.JWT_SECRET);
-    if (!decoded) return res.status(200).json(null);
+    const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+    if (!decodedToken) return res.status(200).json(null);
 
-    const user = await User.findById(decoded.userId).select("-password");
+    const user = await User.findOne({ firebaseUid: decodedToken.uid }).select("-password");
     if (!user) return res.status(200).json(null);
 
     req.user = user;

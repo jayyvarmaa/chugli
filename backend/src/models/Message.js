@@ -10,7 +10,12 @@ const messageSchema = new mongoose.Schema(
     receiverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false, // Optional, for DMs
+    },
+    channelId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Channel",
+      required: false, // Optional, for Server channels
     },
     text: {
       type: String,

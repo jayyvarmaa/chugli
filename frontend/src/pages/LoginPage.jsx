@@ -4,11 +4,26 @@ import { Link } from "react-router";
 
 function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const { login, isLoggingIn } = useAuthStore();
+  const { login, isLoggingIn, sendEmailLink } = useAuthStore();
+  const [isSendingLink, setIsSendingLink] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     login(formData);
+  };
+
+  const handleMagicLink = async () => {
+    if (!formData.email) {
+      const email = window.prompt("Please enter your email to receive a magic link:");
+      if (!email) return;
+      setIsSendingLink(true);
+      await sendEmailLink(email);
+      setIsSendingLink(false);
+    } else {
+      setIsSendingLink(true);
+      await sendEmailLink(formData.email);
+      setIsSendingLink(false);
+    }
   };
 
   return (
@@ -128,94 +143,53 @@ function LoginPage() {
             </p>
           </div>
 
-          {/* TEST ACCOUNT QUICK LOGIN BUTTONS */}
-          <div className="space-y-3 pt-4 border-t-2" style={{ borderColor: "#1a1a1a" }}>
-            <p style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em", opacity: 0.6 }}>
-              Quick Test Accounts
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setFormData({ email: "alex@example.com", password: "password123" })}
-                className="px-3 py-2 text-xs font-bold transition-all active:translate-x-0.5 active:translate-y-0.5"
-                style={{
-                  fontFamily: "Space Grotesk",
-                  backgroundColor: "#0055ff",
-                  border: "2px solid #1a1a1a",
-                  color: "#ffffff",
-                  boxShadow: "3px 3px 0px #1a1a1a",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  cursor: "pointer",
-                }}
-              >
-                Alex Dev
-              </button>
-              <button
-                onClick={() => setFormData({ email: "sarah@example.com", password: "password123" })}
-                className="px-3 py-2 text-xs font-bold transition-all active:translate-x-0.5 active:translate-y-0.5"
-                style={{
-                  fontFamily: "Space Grotesk",
-                  backgroundColor: "#e63b2e",
-                  border: "2px solid #1a1a1a",
-                  color: "#ffffff",
-                  boxShadow: "3px 3px 0px #1a1a1a",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  cursor: "pointer",
-                }}
-              >
-                Sarah Design
-              </button>
-              <button
-                onClick={() => setFormData({ email: "mike@example.com", password: "password123" })}
-                className="px-3 py-2 text-xs font-bold transition-all active:translate-x-0.5 active:translate-y-0.5"
-                style={{
-                  fontFamily: "Space Grotesk",
-                  backgroundColor: "#ffcc00",
-                  border: "2px solid #1a1a1a",
-                  color: "#1a1a1a",
-                  boxShadow: "3px 3px 0px #1a1a1a",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  cursor: "pointer",
-                }}
-              >
-                Mike Tech
-              </button>
-              <button
-                onClick={() => setFormData({ email: "emma@example.com", password: "password123" })}
-                className="px-3 py-2 text-xs font-bold transition-all active:translate-x-0.5 active:translate-y-0.5"
-                style={{
-                  fontFamily: "Space Grotesk",
-                  backgroundColor: "#00cc99",
-                  border: "2px solid #1a1a1a",
-                  color: "#ffffff",
-                  boxShadow: "3px 3px 0px #1a1a1a",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  cursor: "pointer",
-                }}
-              >
-                Emma Creative
-              </button>
-              <button
-                onClick={() => setFormData({ email: "john@example.com", password: "password123" })}
-                className="px-3 py-2 text-xs font-bold col-span-2 transition-all active:translate-x-0.5 active:translate-y-0.5"
-                style={{
-                  fontFamily: "Space Grotesk",
-                  backgroundColor: "#9d4edd",
-                  border: "2px solid #1a1a1a",
-                  color: "#ffffff",
-                  boxShadow: "3px 3px 0px #1a1a1a",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  cursor: "pointer",
-                }}
-              >
-                John Startup
-              </button>
-            </div>
+          <div className="flex items-center gap-4 my-6">
+            <div style={{ flex: 1, height: "2px", backgroundColor: "#1a1a1a" }} />
+            <span style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", opacity: 0.6, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              OR
+            </span>
+            <div style={{ flex: 1, height: "2px", backgroundColor: "#1a1a1a" }} />
           </div>
+
+          <button
+            onClick={() => useAuthStore.getState().signInWithGoogle()}
+            className="w-full py-4 font-black transition-all active:translate-x-1 active:translate-y-1 flex items-center justify-center gap-3 mb-4"
+            style={{
+              fontFamily: "Space Grotesk",
+              backgroundColor: "#ffffff",
+              border: "4px solid #1a1a1a",
+              color: "#1a1a1a",
+              boxShadow: "6px 6px 0px #1a1a1a",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              fontSize: "16px",
+              cursor: "pointer",
+            }}
+          >
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-6 h-6" />
+            SIGN IN WITH GOOGLE
+          </button>
+
+          {/* MAGIC LINK SIGN IN */}
+          <button
+            onClick={handleMagicLink}
+            disabled={isSendingLink}
+            className="w-full py-4 font-black transition-all active:translate-x-1 active:translate-y-1 flex items-center justify-center gap-3"
+            style={{
+              fontFamily: "Space Grotesk",
+              backgroundColor: "#1a1a1a",
+              border: "4px solid #1a1a1a",
+              color: "#ffffff",
+              boxShadow: "6px 6px 0px rgba(0,0,0,0.2)",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              fontSize: "16px",
+              cursor: isSendingLink ? "not-allowed" : "pointer",
+            }}
+          >
+            <span className="material-symbols-outlined">mark_email_read</span>
+            {isSendingLink ? "SENDING LINK..." : "SIGN IN WITH MAGIC LINK"}
+          </button>
         </div>
       </div>
 

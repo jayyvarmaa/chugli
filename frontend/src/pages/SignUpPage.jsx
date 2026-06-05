@@ -4,11 +4,26 @@ import { Link } from "react-router";
 
 function SignUpPage() {
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
-  const { signup, isSigningUp } = useAuthStore();
+  const { signup, isSigningUp, sendEmailLink } = useAuthStore();
+  const [isSendingLink, setIsSendingLink] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     signup(formData);
+  };
+
+  const handleMagicLink = async () => {
+    if (!formData.email) {
+      const email = window.prompt("Please enter your email to receive a magic link:");
+      if (!email) return;
+      setIsSendingLink(true);
+      await sendEmailLink(email);
+      setIsSendingLink(false);
+    } else {
+      setIsSendingLink(true);
+      await sendEmailLink(formData.email);
+      setIsSendingLink(false);
+    }
   };
 
   return (
@@ -51,7 +66,7 @@ function SignUpPage() {
               <div style={{ backgroundColor: "#ffcc00", height: "8px", flex: 1 }} />
             </div>
 
-            {/* SIGNUP FORM */}
+          {/* SIGNUP FORM */}
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* FULL NAME INPUT */}
               <div>
@@ -181,6 +196,55 @@ function SignUpPage() {
                 </Link>
               </p>
             </div>
+
+            <div className="flex items-center gap-4 my-6">
+              <div style={{ flex: 1, height: "2px", backgroundColor: "#1a1a1a" }} />
+              <span style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", opacity: 0.6, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                OR
+              </span>
+              <div style={{ flex: 1, height: "2px", backgroundColor: "#1a1a1a" }} />
+            </div>
+
+            {/* GOOGLE SIGN UP */}
+            <button
+              onClick={() => useAuthStore.getState().signInWithGoogle()}
+              className="w-full py-4 font-black transition-all active:translate-x-1 active:translate-y-1 flex items-center justify-center gap-3 mb-4"
+              style={{
+                fontFamily: "Space Grotesk",
+                backgroundColor: "#ffffff",
+                border: "4px solid #1a1a1a",
+                color: "#1a1a1a",
+                boxShadow: "6px 6px 0px #1a1a1a",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                fontSize: "16px",
+                cursor: "pointer",
+              }}
+            >
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-6 h-6" />
+              SIGN UP WITH GOOGLE
+            </button>
+
+            {/* MAGIC LINK SIGN UP */}
+            <button
+              onClick={handleMagicLink}
+              disabled={isSendingLink}
+              className="w-full py-4 font-black transition-all active:translate-x-1 active:translate-y-1 flex items-center justify-center gap-3"
+              style={{
+                fontFamily: "Space Grotesk",
+                backgroundColor: "#1a1a1a",
+                border: "4px solid #1a1a1a",
+                color: "#ffffff",
+                boxShadow: "6px 6px 0px rgba(0,0,0,0.2)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                fontSize: "16px",
+                cursor: isSendingLink ? "not-allowed" : "pointer",
+              }}
+            >
+              <span className="material-symbols-outlined">mark_email_read</span>
+              {isSendingLink ? "SENDING LINK..." : "SIGN UP WITH MAGIC LINK"}
+            </button>
 
             {/* DIVIDER */}
             <div className="flex items-center gap-4 my-8">

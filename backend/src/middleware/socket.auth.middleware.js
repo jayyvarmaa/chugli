@@ -1,13 +1,13 @@
-import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { ENV } from "../lib/env.js";
+import { firebaseAdmin } from "../lib/firebase.js";
+import { createLogger } from "../lib/logger.js";
+
+const logger = createLogger("WEBRTC", true);
 
 export const socketAuthMiddleware = async (socket, next) => {
   try {
-    // Try to get token from auth object first (client-side auth.token)
     let token = socket.handshake.auth?.token;
 
-    // Fall back to Authorization header
     if (!token) {
       const authHeader = socket.handshake.headers.authorization;
       if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -15,42 +15,39 @@ export const socketAuthMiddleware = async (socket, next) => {
       }
     }
 
-    // Fall back to cookies for development
     if (!token) {
       token = socket.handshake.headers.cookie
         ?.split("; ")
-        .find((row) => row.startsWith("jwt="))
+        .find((row) => row.startsWith("authToken="))
         ?.split("=")[1];
     }
 
     if (!token) {
-      console.log("Socket connection rejected: No token provided");
+      logger.log("Socket connection rejected: No token provided");
       return next(new Error("Unauthorized - No Token Provided"));
     }
 
-    // verify the token
-    const decoded = jwt.verify(token, ENV.JWT_SECRET);
-    if (!decoded) {
-      console.log("Socket connection rejected: Invalid token");
+    // Verify Firebase token
+    const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+    if (!decodedToken) {
+      logger.log("Socket connection rejected: Invalid token");
       return next(new Error("Unauthorized - Invalid Token"));
     }
 
-    // find the user fromdb
-    const user = await User.findById(decoded.userId).select("-password");
+    const user = await User.findOne({ firebaseUid: decodedToken.uid }).select("-password");
     if (!user) {
-      console.log("Socket connection rejected: User not found");
+      logger.log("Socket connection rejected: User not found");
       return next(new Error("User not found"));
     }
 
-    // attach user info to socket
     socket.user = user;
     socket.userId = user._id.toString();
 
-    console.log(`Socket authenticated for user: ${user.fullName} (${user._id})`);
+    logger.log(`Socket authenticated for user: ${user.fullName} (${user._id})`);
 
     next();
   } catch (error) {
-    console.log("Error in socket authentication:", error.message);
+    logger.error("Error in socket authentication:", error.message);
     next(new Error("Unauthorized - Authentication failed"));
   }
 };
