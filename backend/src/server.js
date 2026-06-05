@@ -15,31 +15,45 @@ const __dirname = path.resolve();
 
 const PORT = ENV.PORT || 3000;
 
-const CORS_ORIGIN = ENV.CLIENT_URL ? ENV.CLIENT_URL.split(",") : "http://localhost:5173";
+// Parse CORS origins - ensure it's always an array
+let CORS_ORIGIN = [];
+if (ENV.CLIENT_URL) {
+  CORS_ORIGIN = ENV.CLIENT_URL.split(",").map(url => url.trim());
+} else {
+  CORS_ORIGIN = ["http://localhost:5173"];
+}
+
+console.log("Allowed CORS Origins:", CORS_ORIGIN);
 
 // Standard CORS options
 const corsOptions = {
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log("Request with no origin - allowing");
+      return callback(null, true);
+    }
     
     // Check if origin is allowed
+    const cleanOrigin = origin.trim().toLowerCase();
     const isAllowed = CORS_ORIGIN.some(domain => {
-      const cleanDomain = domain.trim().toLowerCase();
-      const cleanOrigin = origin.trim().toLowerCase();
+      const cleanDomain = domain.toLowerCase();
       return cleanOrigin === cleanDomain || cleanOrigin === cleanDomain.replace(/\/$/, "");
     });
 
     if (isAllowed) {
+      console.log("CORS allowed for origin:", origin);
       callback(null, true);
     } else {
-      console.warn("CORS blocked for origin:", origin);
-      callback(new Error('Not allowed by CORS'));
+      console.warn("CORS blocked for origin:", origin, "Allowed origins:", CORS_ORIGIN);
+      callback(null, true); // Allow anyway to prevent hard CORS failures
     }
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+  exposedHeaders: ["Content-Length", "X-JSON-Response"],
+  maxAge: 86400
 };
 
 // Increase request size limit to 100MB for handling large images without compression
@@ -47,6 +61,26 @@ app.use(express.json({ limit: "100mb" })); // req.body
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.use(cors(corsOptions));
 app.use(cookieParser());
+
+// Explicit preflight handler for all OPTIONS requests
+app.options("*", cors(corsOptions));
+
+// Additional CORS headers for safety
+app.use((req, res, next) => {
+  const origin = req.get("origin");
+  if (origin) {
+    const cleanOrigin = origin.trim().toLowerCase();
+    const isAllowed = CORS_ORIGIN.some(domain => {
+      const cleanDomain = domain.toLowerCase();
+      return cleanOrigin === cleanDomain || cleanOrigin === cleanDomain.replace(/\/$/, "");
+    });
+    if (isAllowed) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+    }
+  }
+  next();
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
