@@ -136,7 +136,7 @@ function MessageInput() {
             value={text}
             onChange={handleTyping}
             className="flex-1 bg-transparent border-none text-[#1a1a1a] font-black focus:outline-none py-3 placeholder:text-[#1a1a1a]/40 uppercase tracking-tighter"
-            placeholder={selectedChannel ? `MESSAGE #${selectedChannel.name.toUpperCase()}` : `MESSAGE @${selectedUser?.fullName?.toUpperCase()}`}
+            placeholder={selectedChannel ? `MESSAGE #${selectedChannel.name.toUpperCase()}` : (selectedUser ? `MESSAGE @${selectedUser.fullName?.toUpperCase()}` : "START CHUGGLING")}
           />
 
           {/* SEND BUTTON */}
@@ -156,10 +156,6 @@ function MessageInput() {
       </form>
     </div>
   );
-          <Send size={20} />
-        </button>
-      </form>
-    </div>
-  );
 }
+
 export default MessageInput;
