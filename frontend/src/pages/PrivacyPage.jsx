@@ -1,52 +1,56 @@
 const PrivacyPage = () => {
   return (
-    <div className="min-h-screen bg-slate-900 relative flex items-center justify-center p-4 overflow-hidden">
-      {/* DECORATORS - GRID BG & GLOW SHAPES */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]" />
-      <div className="absolute top-0 -left-4 size-96 bg-pink-500 opacity-20 blur-[100px]" />
-      <div className="absolute bottom-0 -right-4 size-96 bg-cyan-500 opacity-20 blur-[100px]" />
+    <div 
+      className="min-h-screen w-full flex flex-col items-center justify-center p-4 fixed inset-0" 
+      style={{ 
+        backgroundColor: "#f5f0e8",
+        backgroundImage: `
+          repeating-linear-gradient(0deg, rgba(26, 26, 26, 0.03) 0px, rgba(26, 26, 26, 0.03) 1px, transparent 1px, transparent 60px),
+          repeating-linear-gradient(90deg, rgba(26, 26, 26, 0.03) 0px, rgba(26, 26, 26, 0.03) 1px, transparent 1px, transparent 60px)
+        `,
+        backgroundAttachment: "fixed",
+        overflow: "hidden",
+      }}
+    >
+      <div className="max-w-3xl w-full z-10 bg-white border-[4px] border-[#1a1a1a] shadow-[10px_10px_0px_#1a1a1a] p-10 space-y-8 animate-fade-in overflow-y-auto max-h-[85vh]">
+        <div className="border-b-[4px] border-[#1a1a1a] pb-6">
+          <h1 className="text-5xl font-black uppercase tracking-tighter" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a" }}>Privacy Policy</h1>
+          <p className="font-bold text-sm tracking-widest mt-2" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a" }}>LAST UPDATED: JUNE 5, 2026</p>
+        </div>
 
-      <div className="max-w-3xl w-full z-10 bg-slate-800/80 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6 animate-fade-in overflow-y-auto max-h-[80vh]">
-        <h1 className="text-3xl font-bold text-white">Privacy Policy</h1>
-      <p className="text-slate-400 text-sm">Last Updated: June 5, 2026</p>
+        <section className="space-y-4">
+          <h2 className="text-2xl font-black uppercase tracking-tight" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a" }}>1. Introduction</h2>
+          <p className="font-medium leading-relaxed" style={{ fontFamily: "Inter", color: "#1a1a1a" }}>
+            Welcome to Chugli by @jayyvarmaa. We value your privacy and are committed to protecting your personal data. This privacy policy explains how we handle your information when you use our application.
+          </p>
+        </section>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">1. Introduction</h2>
-        <p className="text-slate-400">
-          Welcome to Chugli. We value your privacy and are committed to protecting your personal data. This privacy policy explains how we handle your information when you use our application.
-        </p>
-      </section>
+        <section className="space-y-4">
+          <h2 className="text-2xl font-black uppercase tracking-tight" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a" }}>2. Data We Collect</h2>
+          <ul className="list-none space-y-3 font-medium" style={{ fontFamily: "Inter", color: "#1a1a1a" }}>
+            <li className="flex items-center gap-2"><span className="size-2 bg-[#ffcc00] border border-[#1a1a1a]"></span> Account Information: Name, email address, and profile picture.</li>
+            <li className="flex items-center gap-2"><span className="size-2 bg-[#ffcc00] border border-[#1a1a1a]"></span> Chat Data: Messages and media shared within the application.</li>
+            <li className="flex items-center gap-2"><span className="size-2 bg-[#ffcc00] border border-[#1a1a1a]"></span> Usage Information: Technical data such as IP address and browser type.</li>
+          </ul>
+        </section>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">2. Data We Collect</h2>
-        <ul className="list-disc list-inside text-slate-400 space-y-2">
-          <li>Account Information: Name, email address, and profile picture.</li>
-          <li>Chat Data: Messages and media shared within the application.</li>
-          <li>Usage Information: Technical data such as IP address and browser type.</li>
-        </ul>
-      </section>
+        <section className="space-y-4">
+          <h2 className="text-2xl font-black uppercase tracking-tight" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a" }}>3. How We Use Your Data</h2>
+          <p className="font-medium leading-relaxed" style={{ fontFamily: "Inter", color: "#1a1a1a" }}>
+            Your data is used solely to provide and improve the chat experience, verify your identity via Firebase Auth, and maintain the security of our services. We do not sell your personal information to third parties.
+          </p>
+        </section>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">3. How We Use Your Data</h2>
-        <p className="text-slate-400">
-          Your data is used solely to provide and improve the chat experience, verify your identity via Firebase Auth, and maintain the security of our services. We do not sell your personal information to third parties.
-        </p>
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">4. Third-Party Services</h2>
-        <p className="text-slate-400">
-          We use Google/Firebase for authentication and hosting. Their use of your data is governed by their respective privacy policies.
-        </p>
-      </section>
-
-      <div className="pt-6 border-t border-white/10">
-        <button
-          onClick={() => window.history.back()}
-          className="px-6 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors"
-        >
-          Go Back
-        </button>
+        <div className="pt-8 flex justify-between items-center">
+          <button
+            onClick={() => window.history.back()}
+            className="px-8 py-3 bg-[#1a1a1a] text-white font-black uppercase tracking-widest hover:bg-slate-800 transition-colors"
+            style={{ fontFamily: "Space Grotesk" }}
+          >
+            Go Back
+          </button>
+          <span className="text-sm font-bold opacity-30" style={{ fontFamily: "Space Grotesk" }}>CHUGLI OAUTH COMPLIANCE</span>
+        </div>
       </div>
     </div>
   );

@@ -21,27 +21,34 @@ html, body {
 }
 
 .input {
-  @apply w-full bg-slate-800/50 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent;
-}
-
-.auth-input-icon {
-  @apply absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 size-5;
+  @apply w-full bg-white border-[3px] border-[#1a1a1a] py-4 px-4 text-[#1a1a1a] placeholder-slate-400 focus:outline-none;
+  font-family: "Inter", sans-serif;
 }
 
 .auth-input-label {
-  @apply block text-sm font-medium text-slate-300 mb-2;
-}
-
-.auth-badge {
-  @apply inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-cyan-500/20 text-cyan-300;
+  @apply block text-xs font-bold mb-2;
+  font-family: "Space Grotesk", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #1a1a1a;
 }
 
 .auth-btn {
-  @apply w-full bg-cyan-500 text-white rounded-lg py-2.5 font-medium
-  hover:bg-cyan-600 focus:ring-2 focus:ring-cyan-500;
+  @apply w-full py-4 font-black transition-all active:translate-x-1 active:translate-y-1;
+  font-family: "Space Grotesk", sans-serif;
+  background-color: #ffcc00;
+  border: 4px solid #1a1a1a;
+  color: #1a1a1a;
+  box-shadow: 6px 6px 0px #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.auth-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
 .auth-link {
-  @apply px-4 py-2 inline-block bg-cyan-500/10 rounded-lg text-cyan-400
-  hover:text-cyan-500 text-sm transition-colors;
+  @apply text-[#0055ff] underline font-bold transition-colors;
 }
