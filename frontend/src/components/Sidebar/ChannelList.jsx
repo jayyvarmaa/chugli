@@ -113,12 +113,12 @@ const ChannelList = ({ server, activeChannelId, onSelectChannel }) => {
         </div>
       </div>
 
-      {/* User Profile Area (Same as above) */}
+      {/* User Profile Area */}
       <div className="p-4 border-t-[4px] border-black bg-white mt-auto shrink-0">
         <div className="flex items-center gap-3 p-2 border-2 border-black bg-[#f5f5f5] shadow-[4px_4px_0px_#000]">
           <img src={authUser?.profilePic || "/default-avatar.png"} className="w-10 h-10 border-2 border-black bg-white object-cover" alt="avatar" />
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-black text-[#1a1a1a] truncate">{authUser?.fullName?.split(" ")[0]}</div>
+            <div className="text-sm font-black text-[#1a1a1a] truncate uppercase tracking-tighter">{authUser?.fullName?.split(" ")[0]}</div>
             <div className="text-[10px] font-black text-green-600 uppercase">● Online</div>
           </div>
           <button onClick={logout} className="p-2 border-2 border-black bg-white hover:bg-red-500 hover:text-white transition-colors">
@@ -128,31 +128,6 @@ const ChannelList = ({ server, activeChannelId, onSelectChannel }) => {
       </div>
 
       {isCreateModalOpen && <CreateChannelModal serverId={server._id} onClose={() => setIsCreateModalOpen(false)} />}
-    </div>
-  );
-              <span className="truncate">{channel.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* User Profile Area */}
-      <div className="h-14 bg-[#232428] flex items-center px-2 gap-2 mt-auto shrink-0">
-        <img src={authUser?.profilePic || "/default-avatar.png"} className="w-8 h-8 rounded-full bg-slate-700" alt="avatar" />
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold text-slate-200 truncate">{authUser?.fullName?.split(" ")[0]}</div>
-          <div className="text-xs text-slate-400 truncate">Online</div>
-        </div>
-        <button onClick={logout} className="p-1 hover:bg-[#35373c] rounded-md text-slate-400 hover:text-slate-200">
-          <Settings size={18} />
-        </button>
-      </div>
-
-      <CreateChannelModal 
-        isOpen={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} 
-        serverId={server?._id}
-      />
     </div>
   );
 };
