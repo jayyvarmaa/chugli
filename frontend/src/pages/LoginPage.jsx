@@ -27,77 +27,76 @@ function LoginPage() {
   };
 
   return (
-    <div 
-      className="min-h-screen w-full flex flex-col items-center justify-center p-4 fixed inset-0" 
-      style={{ 
-        backgroundColor: "#f5f0e8",
-        backgroundImage: `
-          repeating-linear-gradient(0deg, rgba(26, 26, 26, 0.03) 0px, rgba(26, 26, 26, 0.03) 1px, transparent 1px, transparent 60px),
-          repeating-linear-gradient(90deg, rgba(26, 26, 26, 0.03) 0px, rgba(26, 26, 26, 0.03) 1px, transparent 1px, transparent 60px)
-        `,
-        backgroundAttachment: "fixed",
-        overflow: "hidden",
-      }}
-    >
-      <div className="w-full max-w-md flex-1 flex items-center">
-        <div className="w-full space-y-8">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 fixed inset-0 bg-[#f5f0e8] font-['Space_Grotesk']">
+      {/* Paper texture and grid overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/paper-fibers.png")` }}></div>
+      <div className="absolute inset-0 pointer-events-none opacity-[0.05]" style={{ backgroundImage: `radial-gradient(#1a1a1a 0.5px, transparent 0.5px)`, backgroundSize: "20px 20px" }}></div>
+
+      <div className="w-full max-w-md flex-1 flex items-center relative z-10">
+        <div className="w-full space-y-8 p-10 bg-white border-[4px] border-[#1a1a1a] shadow-[12px_12px_0px_#1a1a1a] rotate-1">
           {/* HEADER */}
-          <div className="text-left space-y-2">
-            <h1 className="text-7xl font-black" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", lineHeight: "1" }}>
-              CHUGLI
+          <div className="text-left space-y-2 mb-8 border-b-[4px] border-[#1a1a1a] pb-4">
+            <h1 className="text-6xl font-black text-[#1a1a1a] tracking-tighter">
+              LOGIN
             </h1>
+            <p className="text-xs font-black uppercase tracking-widest text-[#1a1a1a]/60">CHUG-LI BY @JAYYVARMAA</p>
           </div>
 
-          {/* FORM */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* EMAIL */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-xs font-bold mb-2" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                Email
-              </label>
+              <label className="auth-input-label">Email Address</label>
               <input
                 type="email"
+                className="input"
+                placeholder="YOU@EXAMPLE.COM"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="you@example.com"
-                className="w-full px-4 py-3"
-                style={{
-                  fontFamily: "Inter",
-                  backgroundColor: "#ffffff",
-                  border: "3px solid #1a1a1a",
-                  color: "#1a1a1a",
-                }}
+                required
               />
             </div>
 
-            {/* PASSWORD */}
             <div>
-              <label className="block text-xs font-bold mb-2" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                Password
-              </label>
+              <label className="auth-input-label">Secret Key</label>
               <input
                 type="password"
+                className="input"
+                placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="••••••••"
-                className="w-full px-4 py-3"
-                style={{
-                  fontFamily: "Inter",
-                  backgroundColor: "#ffffff",
-                  border: "3px solid #1a1a1a",
-                  color: "#1a1a1a",
-                }}
+                required
               />
-              {/* FORGOT PASSWORD LINK */}
               <div className="mt-2 text-right">
-                <Link
-                  to="/forgot-password"
-                  style={{
-                    fontFamily: "Inter",
-                    color: "#e63b2e",
-                    textDecoration: "underline",
-                    fontWeight: "600",
-                    fontSize: "12px",
+                <Link to="/forgot-password" size="sm" className="text-xs font-black uppercase underline hover:text-red-600 transition-colors tracking-tight">
+                  Lost your key?
+                </Link>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="auth-btn group relative overflow-hidden"
+              disabled={isLoggingIn}
+            >
+              {isLoggingIn ? "OPENING ACCESS..." : "ENTER CHUG-LI"}
+            </button>
+          </form>
+
+          <div className="pt-6 border-t-2 border-black/10 flex flex-col gap-3">
+            <button
+              onClick={handleMagicLink}
+              disabled={isSendingLink}
+              className="w-full py-3 bg-white border-[3px] border-black text-[#1a1a1a] font-black uppercase tracking-tighter text-sm shadow-[4px_4px_0px_#1a1a1a] hover:bg-black hover:text-white hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+            >
+              {isSendingLink ? "SENDING LINK..." : "GET MAGIC LINK"}
+            </button>
+            <p className="text-center text-xs font-bold uppercase py-2">
+              New recruit? <Link to="/signup" className="underline font-black">SIGN UP HERE</Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
                   }}
                 >
                   Forgot Password?

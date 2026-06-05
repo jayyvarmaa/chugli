@@ -45,7 +45,11 @@ function ChatPage() {
   }, [getMyChatPartners, stopPollingMessages]);
 
   return (
-    <div className="h-screen w-screen flex fixed inset-0 bg-[#313338] text-slate-200 overflow-hidden font-['Inter']">
+    <div className="h-screen w-screen flex fixed inset-0 bg-[#f5f0e8] text-[#1a1a1a] overflow-hidden font-['Space_Grotesk']">
+      {/* Paper texture overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/paper-fibers.png")` }}></div>
+      <div className="absolute inset-0 pointer-events-none opacity-[0.05]" style={{ backgroundImage: `radial-gradient(#1a1a1a 0.5px, transparent 0.5px)`, backgroundSize: "20px 20px" }}></div>
+
       {/* 1. Far Left - Server List */}
       <ServerList 
         servers={servers}
@@ -61,21 +65,21 @@ function ChatPage() {
       />
 
       {/* 3. Center - Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#313338]">
+      <div className="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
         {/* Top Header */}
-        <div className="h-12 border-b border-[#1e1f22] shadow-sm flex items-center px-4 font-bold shrink-0">
+        <div className="h-16 border-b-[4px] border-[#1a1a1a] flex items-center px-6 font-black shrink-0 uppercase tracking-tighter text-xl">
           {selectedChannel ? (
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-slate-400 text-[20px]">tag</span>
+              <span className="font-bold text-[#1a1a1a]">#</span>
               {selectedChannel.name}
             </div>
           ) : selectedUser ? (
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-slate-400 text-[20px]">alternate_email</span>
+              <span className="font-bold text-[#1a1a1a]">@</span>
               {selectedUser.fullName}
             </div>
           ) : (
-            <div>Friends</div>
+            <div>Dashboard</div>
           )}
         </div>
 
@@ -86,12 +90,14 @@ function ChatPage() {
           ) : (selectedChannel || selectedUser) ? (
             <ChatContainer />
           ) : (
-            <div className="flex-1 flex items-center justify-center flex-col text-slate-400">
-              <div className="w-64 h-64 bg-[#2b2d31] rounded-full mb-8 flex items-center justify-center shadow-lg">
-                <span className="material-symbols-outlined text-8xl text-slate-500">forum</span>
+            <div className="flex-1 flex items-center justify-center flex-col text-[#1a1a1a] p-8">
+              <div className="w-64 h-64 bg-[#ffcc00] border-[4px] border-[#1a1a1a] shadow-[8px_8px_0px_#1a1a1a] mb-12 flex items-center justify-center rotate-3">
+                <span className="material-symbols-outlined text-8xl">forum</span>
               </div>
-              <h2 className="text-xl font-bold text-slate-300">Welcome to Chugli</h2>
-              <p className="mt-2 text-sm text-center max-w-md">Select a server and channel on the left, or choose a friend from Direct Messages to start chatting.</p>
+              <h2 className="text-4xl font-black uppercase tracking-tighter mb-4">Select a Channel</h2>
+              <p className="text-lg font-bold text-center max-w-md border-2 border-[#1a1a1a] p-4 bg-white shadow-[4px_4px_0px_#1a1a1a]">
+                CHOOSE A SERVER FROM THE LEFT SIDEBAR TO START THE SHIT-TALK.
+              </p>
             </div>
           )}
         </div>

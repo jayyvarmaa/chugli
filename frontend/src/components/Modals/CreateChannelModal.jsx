@@ -30,33 +30,37 @@ const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#313338] rounded-xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl">
-        <div className="p-6 relative">
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-slate-200"
-          >
-            <X size={24} />
-          </button>
-          <h2 className="text-xl font-bold text-slate-100 mb-2">Create Channel</h2>
-          <p className="text-slate-300 text-sm">
-            in Text Channels
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 font-['Space_Grotesk']">
+      <div className="bg-white border-[4px] border-black p-8 w-full max-w-md shadow-[12px_12px_0px_#ffcc00] rotate-[-1deg] relative">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 text-black hover:rotate-90 transition-transform"
+        >
+          <X size={28} strokeWidth={4} />
+        </button>
+
+        <div className="mb-8 border-b-[4px] border-black pb-4">
+          <h2 className="text-4xl font-black text-black uppercase tracking-tighter">NEW CHANNEL</h2>
+          <p className="text-xs font-black uppercase text-black/50 tracking-widest mt-1">
+            ADD MORE NOISE TO THE SERVER
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 pt-0 flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Channel Type Selection */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase mb-2">
-              Channel Type
+            <label className="block text-xs font-black text-black uppercase tracking-widest mb-3 opacity-60">
+              CHANNEL TYPE
             </label>
-            <div className="flex flex-col gap-2 bg-[#2b2d31] rounded-lg p-2">
-              <label className={`flex items-center gap-3 p-3 rounded-md cursor-pointer transition-colors ${type === 'text' ? 'bg-[#404249]' : 'hover:bg-[#35373c]'}`}>
-                <Hash size={24} className="text-slate-400" />
+            <div className="flex flex-col gap-3">
+              <label 
+                className={`flex items-center gap-4 p-4 border-[3px] cursor-pointer transition-all active:shadow-none active:translate-x-1 active:translate-y-1 
+                ${type === 'text' ? 'bg-[#ffcc00] border-black shadow-[4px_4px_0px_#000]' : 'bg-[#f5f5f5] border-black/10 hover:border-black shadow-[2px_2px_0px_rgba(0,0,0,0.1)]'}`}
+              >
+                <Hash size={24} strokeWidth={4} />
                 <div className="flex-1">
-                  <div className="text-slate-200 font-medium text-sm">Text</div>
-                  <div className="text-slate-400 text-xs">Send messages, images, GIFs, emoji, opinions, and puns</div>
+                  <div className="font-black text-sm uppercase">TEXT</div>
+                  <div className="text-[10px] font-bold leading-tight opacity-70">MESSAGES, IMAGES, AND GENERAL CHAOS</div>
                 </div>
                 <input 
                   type="radio" 
@@ -64,15 +68,18 @@ const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
                   value="text" 
                   checked={type === "text"} 
                   onChange={(e) => setType(e.target.value)} 
-                  className="w-5 h-5 accent-indigo-500"
+                  className="hidden"
                 />
               </label>
 
-              <label className={`flex items-center gap-3 p-3 rounded-md cursor-pointer transition-colors ${type === 'voice' ? 'bg-[#404249]' : 'hover:bg-[#35373c]'}`}>
-                <Volume2 size={24} className="text-slate-400" />
+              <label 
+                className={`flex items-center gap-4 p-4 border-[3px] cursor-pointer transition-all active:shadow-none active:translate-x-1 active:translate-y-1 
+                ${type === 'voice' ? 'bg-[#ffcc00] border-black shadow-[4px_4px_0px_#000]' : 'bg-[#f5f5f5] border-black/10 hover:border-black shadow-[2px_2px_0px_rgba(0,0,0,0.1)]'}`}
+              >
+                <Volume2 size={24} strokeWidth={4} />
                 <div className="flex-1">
-                  <div className="text-slate-200 font-medium text-sm">Voice</div>
-                  <div className="text-slate-400 text-xs">Hang out together with voice, video, and screen share</div>
+                  <div className="font-black text-sm uppercase">VOICE</div>
+                  <div className="text-[10px] font-bold leading-tight opacity-70">REAL-TIME SHIT-TALKING & HANGING OUT</div>
                 </div>
                 <input 
                   type="radio" 
@@ -80,7 +87,7 @@ const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
                   value="voice" 
                   checked={type === "voice"} 
                   onChange={(e) => setType(e.target.value)} 
-                  className="w-5 h-5 accent-indigo-500"
+                  className="hidden"
                 />
               </label>
             </div>
@@ -88,19 +95,19 @@ const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
 
           {/* Channel Name */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase mb-2">
-              Channel Name
+            <label className="block text-xs font-black text-black uppercase tracking-widest mb-3 opacity-60">
+              CHANNEL NAME
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                {type === "text" ? <Hash size={18} /> : <Volume2 size={18} />}
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black font-black">
+                {type === "text" ? "#" : <Volume2 size={18} strokeWidth={4} />}
               </div>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-[#1e1f22] border-none rounded-md pl-10 pr-3 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="new-channel"
+                className="w-full bg-white border-[3px] border-black pl-12 pr-4 py-4 text-black font-black uppercase tracking-tighter placeholder:text-black/20 focus:outline-none focus:bg-[#ffcc00] transition-colors"
+                placeholder="CHANNEL-NAME"
                 maxLength={100}
                 autoFocus
               />
@@ -108,25 +115,20 @@ const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
           </div>
         </form>
 
-        <div className="bg-[#2b2d31] p-4 flex justify-between items-center mt-auto">
+        <div className="flex gap-4 mt-10">
           <button 
             type="button"
             onClick={onClose}
-            className="text-sm text-slate-300 hover:underline px-4 py-2"
+            className="flex-1 py-4 border-[3px] border-black font-black uppercase tracking-widest text-sm hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_#ccc]"
           >
-            Cancel
+            CANCEL
           </button>
           <button 
             onClick={handleSubmit}
             disabled={isCreatingChannel || !name.trim()}
-            className="bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-500/50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-md font-medium transition-colors flex items-center gap-2"
+            className="flex-1 py-4 bg-[#ffcc00] border-[3px] border-black font-black uppercase tracking-widest text-sm shadow-[6px_6px_0px_#1a1a1a] active:shadow-none active:translate-x-1 active:translate-y-1 disabled:opacity-50 disabled:grayscale transition-all"
           >
-            {isCreatingChannel ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                Creating...
-              </>
-            ) : "Create Channel"}
+            {isCreatingChannel ? "BUILDING..." : "CREATE"}
           </button>
         </div>
       </div>

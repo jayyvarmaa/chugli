@@ -37,22 +37,23 @@ const CreateServerModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#313338] rounded-xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl">
-        <div className="p-6 text-center relative">
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-slate-200"
-          >
-            <X size={24} />
-          </button>
-          <h2 className="text-2xl font-bold text-slate-100 mb-2">Customize your server</h2>
-          <p className="text-slate-300 text-sm">
-            Give your new server a personality with a name and an icon. You can always change it later.
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 font-['Space_Grotesk']">
+      <div className="bg-white border-[4px] border-black p-8 w-full max-w-md shadow-[12px_12px_0px_#ffcc00] rotate-1 relative">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 text-black hover:rotate-90 transition-transform"
+        >
+          <X size={28} strokeWidth={4} />
+        </button>
+
+        <div className="mb-8 border-b-[4px] border-black pb-4 text-center">
+          <h2 className="text-4xl font-black text-black uppercase tracking-tighter">BRAND YOUR SQUAD</h2>
+          <p className="text-xs font-black uppercase text-black/50 tracking-widest mt-1">
+            GIVE YOUR SERVER A FACE AND A NAME
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 pt-0 flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Icon Upload */}
           <div className="flex justify-center">
             <div className="relative group cursor-pointer">
@@ -65,39 +66,57 @@ const CreateServerModal = ({ isOpen, onClose }) => {
               />
               <label 
                 htmlFor="server-icon"
-                className={`w-24 h-24 rounded-full border-2 border-dashed flex flex-col items-center justify-center overflow-hidden cursor-pointer transition-colors
-                  ${iconPreview ? 'border-transparent' : 'border-slate-500 hover:border-slate-300'}`}
+                className={`w-28 h-28 border-[3px] flex flex-col items-center justify-center overflow-hidden cursor-pointer transition-all rotate-[-3deg] shadow-[6px_6px_0px_#1a1a1a]
+                  ${iconPreview ? 'border-black' : 'border-black border-dashed bg-[#f5f5f5] hover:bg-[#ffcc00]'}`}
               >
                 {iconPreview ? (
                   <img src={iconPreview} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <>
-                    <Upload size={24} className="text-slate-400 group-hover:text-slate-200" />
-                    <span className="text-xs text-slate-400 group-hover:text-slate-200 mt-1 font-bold">UPLOAD</span>
+                    <Upload size={32} strokeWidth={3} className="text-black" />
+                    <span className="text-[10px] text-black mt-1 font-black uppercase tracking-widest">UPLOAD LOGO</span>
                   </>
                 )}
               </label>
-              {iconPreview && (
-                <div className="absolute top-0 right-0 bg-indigo-500 text-white rounded-full p-1 shadow-sm">
-                  <span className="material-symbols-outlined text-[14px]">edit</span>
-                </div>
-              )}
             </div>
           </div>
 
           {/* Server Name */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase mb-2">
-              Server Name
+            <label className="block text-xs font-black text-black uppercase tracking-widest mb-3 opacity-60">
+              SQUAD NAME
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#1e1f22] border-none rounded-md px-3 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="My Awesome Server"
+              className="input"
+              placeholder="THE ELITE SHIT-TALKERS"
               maxLength={100}
               autoFocus
+            />
+          </div>
+
+          <div className="flex gap-4 mt-6">
+            <button 
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-4 border-[3px] border-black font-black uppercase tracking-widest text-sm hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_#ccc]"
+            >
+              RETREAT
+            </button>
+            <button 
+              onClick={handleSubmit}
+              disabled={isCreatingServer || !name.trim()}
+              className="flex-1 py-4 bg-[#ffcc00] border-[3px] border-black font-black uppercase tracking-widest text-sm shadow-[6px_6px_0px_#1a1a1a] active:shadow-none active:translate-x-1 active:translate-y-1 disabled:opacity-50 disabled:grayscale transition-all"
+            >
+              {isCreatingServer ? "MINING..." : "DEPLOY"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
             />
           </div>
         </form>

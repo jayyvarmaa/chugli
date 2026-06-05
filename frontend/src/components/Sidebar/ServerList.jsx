@@ -7,38 +7,32 @@ function ServerList({ servers = [], activeServerId, onSelectServer }) {
   const [showJoinModal, setShowJoinModal] = useState(false);
 
   return (
-    <div className="w-[72px] bg-[#1e1f22] flex flex-col items-center py-3 gap-2 overflow-y-auto shrink-0 relative pt-16 z-10">
+    <div className="w-[84px] bg-[#1a1a1a] flex flex-col items-center py-6 gap-4 overflow-y-auto shrink-0 relative z-20 border-r-[4px] border-r-black shadow-[4px_0px_0px_rgba(0,0,0,0.1)]">
       
       {/* Home Button (DMs) */}
-      <div className="w-12 h-12 relative group cursor-pointer" onClick={() => onSelectServer(null)}>
-        <div className={`absolute -left-3 top-1/2 -translate-y-1/2 w-1 bg-white rounded-r-md transition-all duration-200 
-          ${activeServerId === null ? "h-10" : "h-0 group-hover:h-5"}`} 
-        />
-        <div className={`w-12 h-12 flex items-center justify-center transition-all duration-200
+      <div className="w-14 h-14 relative group cursor-pointer" onClick={() => onSelectServer(null)}>
+        <div className={`w-14 h-14 flex items-center justify-center transition-all duration-100 border-[3px]
           ${activeServerId === null 
-            ? "bg-[#5865F2] rounded-[16px] text-white" 
-            : "bg-[#313338] rounded-[24px] group-hover:rounded-[16px] group-hover:bg-[#5865F2] text-slate-300 group-hover:text-white"}`}
+            ? "bg-[#ffcc00] border-black translate-x-1 translate-y-1 shadow-none" 
+            : "bg-white border-black shadow-[4px_4px_0px_white] hover:bg-[#ffcc00] group-hover:shadow-none group-hover:translate-x-1 group-hover:translate-y-1"}`}
         >
-          <span className="material-symbols-outlined">forum</span>
+          <span className="material-symbols-outlined text-[#1a1a1a] font-black">forum</span>
         </div>
       </div>
 
-      <div className="w-8 h-[2px] bg-[#313338] rounded-full mx-auto my-1" />
+      <div className="w-10 h-[3px] bg-white opacity-20 my-1 rounded-full" />
 
       {/* Servers Map */}
       {servers.map((server) => (
         <div 
           key={server._id} 
-          className="w-12 h-12 relative group cursor-pointer"
+          className="w-14 h-14 relative group cursor-pointer"
           onClick={() => onSelectServer(server._id)}
         >
-          <div className={`absolute -left-3 top-1/2 -translate-y-1/2 w-1 bg-white rounded-r-md transition-all duration-200 
-            ${activeServerId === server._id ? "h-10" : "h-0 group-hover:h-5"}`} 
-          />
-          <div className={`w-12 h-12 flex items-center justify-center font-bold text-lg transition-all duration-200 overflow-hidden
+          <div className={`w-14 h-14 flex items-center justify-center font-black text-xl transition-all duration-100 overflow-hidden border-[3px]
             ${activeServerId === server._id 
-              ? "bg-[#5865F2] rounded-[16px] text-white" 
-              : "bg-[#313338] rounded-[24px] group-hover:rounded-[16px] group-hover:bg-[#5865F2] text-slate-300 group-hover:text-white"}`}
+              ? "bg-[#ffcc00] border-black translate-x-1 translate-y-1 shadow-none" 
+              : "bg-white border-black shadow-[4px_4px_0px_white] hover:bg-[#ffcc00] group-hover:shadow-none group-hover:translate-x-1 group-hover:translate-y-1"}`}
           >
             {server.icon ? (
               <img src={server.icon} alt={server.name} className="w-full h-full object-cover" />
@@ -48,7 +42,7 @@ function ServerList({ servers = [], activeServerId, onSelectServer }) {
           </div>
           
           {/* Tooltip */}
-          <div className="absolute left-[80px] top-1/2 -translate-y-1/2 bg-black text-slate-200 text-sm font-bold px-3 py-1 rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50">
+          <div className="absolute left-[95px] top-1/2 -translate-y-1/2 bg-[#ffcc00] text-black text-xs font-black px-3 py-2 border-2 border-black shadow-[4px_4px_0px_#000] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50 uppercase tracking-widest">
             {server.name}
           </div>
         </div>
@@ -56,27 +50,27 @@ function ServerList({ servers = [], activeServerId, onSelectServer }) {
 
       {/* Add Server Button */}
       <div 
-        className="w-12 h-12 relative group cursor-pointer mt-2"
+        className="w-14 h-14 relative group cursor-pointer"
         onClick={() => setShowCreateModal(true)}
       >
-        <div className="w-12 h-12 bg-[#313338] rounded-[24px] group-hover:rounded-[16px] group-hover:bg-[#23a559] flex items-center justify-center text-[#23a559] group-hover:text-white transition-all duration-200">
-          <span className="material-symbols-outlined">add</span>
+        <div className="w-14 h-14 bg-[#1a1a1a] border-[3px] border-white flex items-center justify-center text-white hover:bg-[#ffcc00] hover:text-black hover:border-black transition-all duration-100">
+          <span className="material-symbols-outlined font-black">add</span>
         </div>
-        <div className="absolute left-[80px] top-1/2 -translate-y-1/2 bg-black text-slate-200 text-sm font-bold px-3 py-1 rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50">
-          Add a Server
+        <div className="absolute left-[95px] top-1/2 -translate-y-1/2 bg-[#ffcc00] text-black text-xs font-black px-3 py-2 border-2 border-black shadow-[4px_4px_0px_#000] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50 uppercase tracking-widest">
+          Create Server
         </div>
       </div>
 
       {/* Explore / Join Server Button */}
       <div 
-        className="w-12 h-12 relative group cursor-pointer mt-1"
+        className="w-14 h-14 relative group cursor-pointer"
         onClick={() => setShowJoinModal(true)}
       >
-        <div className="w-12 h-12 bg-[#313338] rounded-[24px] group-hover:rounded-[16px] group-hover:bg-[#23a559] flex items-center justify-center text-[#23a559] group-hover:text-white transition-all duration-200">
-          <span className="material-symbols-outlined">explore</span>
+        <div className="w-14 h-14 bg-[#1a1a1a] border-[3px] border-white flex items-center justify-center text-white hover:bg-[#ffcc00] hover:text-black hover:border-black transition-all duration-100">
+          <span className="material-symbols-outlined font-black">explore</span>
         </div>
-        <div className="absolute left-[80px] top-1/2 -translate-y-1/2 bg-black text-slate-200 text-sm font-bold px-3 py-1 rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50">
-          Explore Public Servers
+        <div className="absolute left-[95px] top-1/2 -translate-y-1/2 bg-[#ffcc00] text-black text-xs font-black px-3 py-2 border-2 border-black shadow-[4px_4px_0px_#000] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50 uppercase tracking-widest">
+          Join Server
         </div>
       </div>
 

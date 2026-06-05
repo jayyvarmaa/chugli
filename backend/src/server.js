@@ -17,10 +17,28 @@ const PORT = ENV.PORT || 3000;
 
 const CORS_ORIGIN = ENV.CLIENT_URL ? ENV.CLIENT_URL.split(",") : "http://localhost:5173";
 
+// Standard CORS options
+const corsOptions = {
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (CORS_ORIGIN.indexOf(origin) !== -1 || CORS_ORIGIN.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn("CORS blocked for origin:", origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
+};
+
 // Increase request size limit to 100MB for handling large images without compression
 app.use(express.json({ limit: "100mb" })); // req.body
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
-app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
+app.use(cors(corsOptions));
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);

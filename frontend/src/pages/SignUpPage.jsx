@@ -27,77 +27,83 @@ function SignUpPage() {
   };
 
   return (
-    <div 
-      className="min-h-screen w-full flex items-center justify-center p-4 fixed inset-0" 
-      style={{ 
-        backgroundColor: "#f5f0e8",
-        backgroundImage: `
-          repeating-linear-gradient(0deg, rgba(26, 26, 26, 0.03) 0px, rgba(26, 26, 26, 0.03) 1px, transparent 1px, transparent 60px),
-          repeating-linear-gradient(90deg, rgba(26, 26, 26, 0.03) 0px, rgba(26, 26, 26, 0.03) 1px, transparent 1px, transparent 60px)
-        `,
-        backgroundAttachment: "fixed",
-        overflow: "hidden",
-      }}
-    >
-      <div className="w-full max-w-2xl">
-        <div className="space-y-12">
-          {/* HEADER SECTION */}
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center gap-3 p-4" style={{ backgroundColor: "#1a1a1a", border: "4px solid #1a1a1a" }}>
-              <span className="material-symbols-outlined text-4xl" style={{ color: "#ffcc00" }}>
-                person_add
-              </span>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a" }}>
-              CHUGLI
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 fixed inset-0 bg-[#f5f0e8] font-['Space_Grotesk']">
+      {/* Paper texture and grid overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/paper-fibers.png")` }}></div>
+      <div className="absolute inset-0 pointer-events-none opacity-[0.05]" style={{ backgroundImage: `radial-gradient(#1a1a1a 0.5px, transparent 0.5px)`, backgroundSize: "20px 20px" }}></div>
+
+      <div className="w-full max-w-md flex-1 flex items-center relative z-10 overflow-y-auto pt-20 pb-10">
+        <div className="w-full space-y-8 p-10 bg-white border-[4px] border-[#1a1a1a] shadow-[12px_12px_0px_#1a1a1a] rotate-[-1deg]">
+          {/* HEADER */}
+          <div className="text-left space-y-2 mb-8 border-b-[4px] border-[#1a1a1a] pb-4">
+            <h1 className="text-6xl font-black text-[#1a1a1a] tracking-tighter">
+              SIGN UP
             </h1>
-            <p className="text-lg" style={{ fontFamily: "Inter", color: "#1a1a1a", opacity: 0.7 }}>
-              JOIN THE CONVERSATION
-            </p>
+            <p className="text-xs font-black uppercase tracking-widest text-[#1a1a1a]/60">JOIN THE SHIT-TALK REVOLUTION</p>
           </div>
 
-          {/* FORM SECTION */}
-          <div className="space-y-8">
-            {/* HEADING WITH YELLOW HIGHLIGHT */}
-            <div className="flex items-baseline gap-4">
-              <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a" }}>
-                CREATE ACCOUNT
-              </h2>
-              <div style={{ backgroundColor: "#ffcc00", height: "8px", flex: 1 }} />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="auth-input-label">YOUR CALLSIGN (FULL NAME)</label>
+              <input
+                type="text"
+                className="input"
+                placeholder="JOHN DOE"
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                required
+              />
             </div>
 
-          {/* SIGNUP FORM */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* FULL NAME INPUT */}
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  Full Name
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    placeholder="John Doe"
-                    className="w-full px-4 py-3 text-base"
-                    style={{
-                      fontFamily: "Inter",
-                      backgroundColor: "#ffffff",
-                      border: "4px solid #1a1a1a",
-                      color: "#1a1a1a",
-                      boxShadow: "4px 4px 0px rgba(0, 0, 0, 0.1)",
-                    }}
-                  />
-                </div>
-              </div>
+            <div>
+              <label className="auth-input-label">EMAIL ADDRESS</label>
+              <input
+                type="email"
+                className="input"
+                placeholder="YOU@EXAMPLE.COM"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
+              />
+            </div>
 
-              {/* EMAIL INPUT */}
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  Email Address
-                </label>
-                <div className="relative">
-                  <input
+            <div>
+              <label className="auth-input-label">CREATE PASSWORD</label>
+              <input
+                type="password"
+                className="input"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="auth-btn"
+              disabled={isSigningUp}
+            >
+              {isSigningUp ? "RECRUITING..." : "JOIN CHUG-LI"}
+            </button>
+          </form>
+
+          <div className="pt-6 border-t-2 border-black/10 flex flex-col gap-3">
+            <button
+              onClick={handleMagicLink}
+              disabled={isSendingLink}
+              className="w-full py-3 bg-white border-[3px] border-black text-[#1a1a1a] font-black uppercase tracking-tighter text-sm shadow-[4px_4px_0px_#1a1a1a] hover:bg-black hover:text-white hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+            >
+              {isSendingLink ? "SENDING LINK..." : "STAY ANONYMOUS: MAGIC LINK"}
+            </button>
+            <p className="text-center text-xs font-bold uppercase py-2">
+              Already a member? <Link to="/login" className="underline font-black">LOGIN HERE</Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}

@@ -1,6 +1,8 @@
+import { ENV } from "./env.js";
+
 export const createLogger = (systemName, isMajor = false) => {
-  const isMajorEnabled = process.env.LOG_MAJOR === 'true';
-  const isMinorEnabled = process.env.LOG_MINOR === 'true';
+  const isMajorEnabled = ENV.LOG_MAJOR;
+  const isMinorEnabled = ENV.LOG_MINOR;
 
   const shouldLog = isMajor ? isMajorEnabled : isMinorEnabled;
 

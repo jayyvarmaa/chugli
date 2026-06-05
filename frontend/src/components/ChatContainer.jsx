@@ -65,25 +65,25 @@ function ChatContainer() {
   const targetName = selectedChannel ? selectedChannel.name : selectedUser?.fullName;
 
   return (
-    <div className="h-full flex flex-col bg-[#313338]">
+    <div className="h-full flex flex-col bg-transparent">
       {/* MESSAGES AREA */}
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col">
+      <div className="flex-1 overflow-y-auto p-6 flex flex-col no-scrollbar">
         {/* Welcome Header at the top of empty chat */}
-        <div className="mt-auto mb-6">
-          <div className="w-16 h-16 bg-[#404249] rounded-full flex items-center justify-center mb-4">
+        <div className="mt-auto mb-8 p-8 border-[4px] border-black bg-white shadow-[8px_8px_0px_#1a1a1a] max-w-2xl">
+          <div className="w-20 h-20 bg-[#ffcc00] border-[3px] border-black flex items-center justify-center mb-6 shadow-[4px_4px_0px_#000]">
             {selectedChannel ? (
-              <Hash size={32} className="text-slate-200" />
+              <Hash size={40} className="text-black" strokeWidth={3} />
             ) : (
-              <img src={selectedUser?.profilePic || "/default-avatar.png"} alt="avatar" className="w-full h-full rounded-full object-cover" />
+              <img src={selectedUser?.profilePic || "/default-avatar.png"} alt="avatar" className="w-full h-full object-cover" />
             )}
           </div>
-          <h1 className="text-3xl font-bold text-slate-100 mb-2">
-            {selectedChannel ? `Welcome to #${targetName}!` : targetName}
+          <h1 className="text-4xl font-black text-[#1a1a1a] mb-2 uppercase tracking-tighter">
+            {selectedChannel ? `CHANNEL: #${targetName}` : `DM: ${targetName}`}
           </h1>
-          <p className="text-slate-400">
+          <p className="text-lg font-bold text-[#1a1a1a] opacity-70 uppercase tracking-tight">
             {selectedChannel 
-              ? "This is the start of the channel." 
-              : `This is the beginning of your direct message history with ${targetName}.`}
+              ? "THIS IS THE START OF THE CHAOS. POST SOMETHING WORTHY." 
+              : `NO MERCY IN THE CHAT WITH ${targetName}. START TYPING.`}
           </p>
         </div>
 
@@ -102,22 +102,24 @@ function ChatContainer() {
               const senderName = msg.senderId?.fullName || "User";
 
               return (
-                <div key={msg._id} className={`flex gap-4 hover:bg-[#2e3035] p-2 rounded-md ${!isSameUser ? 'mt-2' : '-mt-3'}`}>
+                <div key={msg._id} className={`flex gap-4 p-2 transition-colors ${!isSameUser ? 'mt-4' : 'mt-1'} group`}>
                   {/* Avatar */}
                   {!isSameUser ? (
-                    <img src={senderPic} alt="avatar" className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 mt-1" />
+                    <div className="w-12 h-12 flex-shrink-0 border-2 border-black shadow-[3px_3px_0px_#000] rotate-[-2deg] bg-white overflow-hidden">
+                      <img src={senderPic} alt="avatar" className="w-full h-full object-cover" />
+                    </div>
                   ) : (
-                    <div className="w-10 h-10 flex-shrink-0" />
+                    <div className="w-12 h-12 flex-shrink-0" />
                   )}
 
                   <div className="flex-1 min-w-0">
                     {/* Header (only show if not same user as previous msg) */}
                     {!isSameUser && (
-                      <div className="flex items-baseline gap-2 mb-1">
-                        <span className="font-medium text-slate-100 hover:underline cursor-pointer">
+                      <div className="flex items-baseline gap-3 mb-1">
+                        <span className="font-black text-[#1a1a1a] uppercase tracking-tighter text-sm">
                           {senderName}
                         </span>
-                        <span className="text-xs text-slate-400">
+                        <span className="text-[10px] font-bold text-[#1a1a1a] opacity-50 uppercase tracking-widest">
                           {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -125,16 +127,21 @@ function ChatContainer() {
                     
                     {/* Text Content */}
                     {msg.text && (
-                      <p className="text-slate-200 break-words whitespace-pre-wrap">{msg.text}</p>
+                      <div className={`text-[#1a1a1a] font-bold break-words whitespace-pre-wrap leading-tight
+                        ${msg.senderId?._id === authUser._id || msg.senderId === authUser._id ? 'bg-[#ffcc00] border-2 border-black p-2 shadow-[3px_3px_0px_#000] inline-block' : ''}`}>
+                        {msg.text}
+                      </div>
                     )}
 
                     {/* Image Content */}
                     {msg.image && (
-                      <img 
-                        src={msg.image} 
-                        alt="attachment" 
-                        className="max-w-sm max-h-80 rounded-md mt-2 object-contain bg-[#2b2d31]"
-                      />
+                      <div className="mt-2 border-[3px] border-black inline-block bg-black shadow-[4px_4px_0px_white]">
+                        <img 
+                          src={msg.image} 
+                          alt="attachment" 
+                          className="max-w-sm max-h-80 object-contain"
+                        />
+                      </div>
                     )}
                   </div>
                 </div>

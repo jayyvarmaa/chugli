@@ -91,63 +91,71 @@ function MessageInput() {
   };
 
   return (
-    <div className="p-4 bg-[#313338]">
+    <div className="p-4 bg-transparent relative z-20">
       {/* IMAGE PREVIEW */}
       {imagePreview && (
-        <div className="mb-2 bg-[#2b2d31] p-3 rounded-md flex items-start w-max relative border border-[#1e1f22]">
-          <div className="relative w-40 h-40 flex-shrink-0 rounded overflow-hidden">
+        <div className="mb-4 bg-white p-4 border-[3px] border-black shadow-[4px_4px_0px_#000] flex items-start w-max relative rotate-[-1deg]">
+          <div className="relative w-48 h-48 flex-shrink-0 border-2 border-black overflow-hidden bg-white">
             <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
             <button
               onClick={removeImage}
-              className="absolute top-1 right-1 bg-black/50 hover:bg-red-500 rounded p-1 text-white transition-colors"
+              className="absolute top-1 right-1 bg-black text-white p-1 hover:bg-red-500 transition-colors border-2 border-white"
               type="button"
             >
-              <X size={16} />
+              <X size={16} strokeWidth={4} />
             </button>
           </div>
         </div>
       )}
 
       {/* MESSAGE INPUT FORM */}
-      <form onSubmit={handleSendMessage} className="bg-[#383a40] rounded-lg flex items-center pr-2">
-        {/* ADD MEDIA BUTTON */}
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="p-3 text-slate-400 hover:text-slate-200 transition-colors"
-          title="Attach image"
-        >
-          <PlusCircle size={24} className="fill-slate-400/20" />
-        </button>
+      <form onSubmit={handleSendMessage} className="flex flex-col gap-2">
+        <div className="flex gap-4 items-center bg-white border-[4px] border-black p-2 shadow-[6px_6px_0px_#1a1a1a] focus-within:shadow-none focus-within:translate-x-1 focus-within:translate-y-1 transition-all">
+          {/* ADD MEDIA BUTTON */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="p-3 text-[#1a1a1a] hover:bg-[#ffcc00] border-2 border-transparent hover:border-black transition-all"
+            title="Attach image"
+          >
+            <PlusCircle size={24} strokeWidth={3} />
+          </button>
 
-        {/* HIDDEN FILE INPUT */}
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleImageChange}
-          className="hidden"
-        />
+          {/* HIDDEN FILE INPUT */}
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            className="hidden"
+          />
 
-        {/* TEXT INPUT */}
-        <input
-          type="text"
-          value={text}
-          onChange={handleTyping}
-          className="flex-1 bg-transparent border-none text-slate-200 focus:outline-none py-3 placeholder:text-slate-500"
-          placeholder={selectedChannel ? `Message #${selectedChannel.name}` : `Message @${selectedUser?.fullName}`}
-        />
+          {/* TEXT INPUT */}
+          <input
+            type="text"
+            value={text}
+            onChange={handleTyping}
+            className="flex-1 bg-transparent border-none text-[#1a1a1a] font-black focus:outline-none py-3 placeholder:text-[#1a1a1a]/40 uppercase tracking-tighter"
+            placeholder={selectedChannel ? `MESSAGE #${selectedChannel.name.toUpperCase()}` : `MESSAGE @${selectedUser?.fullName?.toUpperCase()}`}
+          />
 
-        {/* SEND BUTTON */}
-        <button
-          type="submit"
-          disabled={!text.trim() && !imagePreview}
-          className={`p-2 rounded-md flex items-center justify-center transition-colors ml-2
-            ${(!text.trim() && !imagePreview) 
-              ? "text-slate-500 cursor-not-allowed" 
-              : "text-indigo-400 hover:text-indigo-300 hover:bg-[#404249]"}`}
-          title="Send message (Enter)"
-        >
+          {/* SEND BUTTON */}
+          <button
+            type="submit"
+            disabled={!text.trim() && !imagePreview}
+            className="bg-[#ffcc00] text-[#1a1a1a] px-6 py-3 border-[3px] border-black font-black uppercase tracking-widest text-sm shadow-[3px_3px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 disabled:opacity-50 disabled:grayscale transition-all flex items-center gap-2"
+            title="Send message"
+          >
+            SEND
+            <Send size={18} strokeWidth={3} />
+          </button>
+        </div>
+        <p className="text-[9px] font-black uppercase tracking-widest text-[#1a1a1a]/40 px-2 italic">
+          KEEP IT RAW • VINTAGE CHUGLI v1.0
+        </p>
+      </form>
+    </div>
+  );
           <Send size={20} />
         </button>
       </form>
