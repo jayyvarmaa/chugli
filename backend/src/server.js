@@ -23,7 +23,14 @@ const corsOptions = {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (CORS_ORIGIN.indexOf(origin) !== -1 || CORS_ORIGIN.includes(origin)) {
+    // Check if origin is allowed
+    const isAllowed = CORS_ORIGIN.some(domain => {
+      const cleanDomain = domain.trim().toLowerCase();
+      const cleanOrigin = origin.trim().toLowerCase();
+      return cleanOrigin === cleanDomain || cleanOrigin === cleanDomain.replace(/\/$/, "");
+    });
+
+    if (isAllowed) {
       callback(null, true);
     } else {
       console.warn("CORS blocked for origin:", origin);

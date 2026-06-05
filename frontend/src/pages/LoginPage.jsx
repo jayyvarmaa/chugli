@@ -15,8 +15,17 @@ function LoginPage() {
   const handleMagicLink = async () => {
     let email = formData.email;
     if (!email) {
-      email = window.prompt("Please enter your email to receive a magic link:");
-      if (!email) return;
+      toast.error("Please enter your email address in the field above first!", {
+        style: {
+          border: '3px solid #1a1a1a',
+          padding: '16px',
+          color: '#1a1a1a',
+          borderRadius: '0px',
+          fontWeight: 'bold',
+          background: '#ffcc00',
+        },
+      });
+      return;
     }
     
     setIsSendingLink(true);
@@ -37,7 +46,7 @@ function LoginPage() {
             <h1 className="text-6xl font-black text-[#1a1a1a] tracking-tighter">
               LOGIN
             </h1>
-            <p className="text-xs font-black uppercase tracking-widest text-[#1a1a1a]/60">CHUG-LI BY @JAYYVARMAA</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1a1a1a]/40">BY @JAYYVARMAA</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -75,11 +84,18 @@ function LoginPage() {
               className="auth-btn group relative overflow-hidden"
               disabled={isLoggingIn}
             >
-              {isLoggingIn ? "OPENING ACCESS..." : "ENTER CHUG-LI"}
+              {isLoggingIn ? "OPENING ACCESS..." : "ENTER CHUGLI"}
             </button>
           </form>
 
           <div className="pt-6 border-t-2 border-black/10 flex flex-col gap-3">
+            <button
+              onClick={() => useAuthStore.getState().signInWithGoogle()}
+              className="w-full py-4 bg-white border-[3px] border-black text-[#1a1a1a] font-black uppercase tracking-tighter text-sm shadow-[4px_4px_0px_#1a1a1a] hover:bg-[#ffcc00] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-3"
+            >
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+              Sign in with Google
+            </button>
             <button
               onClick={handleMagicLink}
               disabled={isSendingLink}

@@ -16,10 +16,11 @@ const LandingPage = () => {
     >
       <div className="max-w-4xl w-full z-10 text-center space-y-12 animate-fade-in">
         <div className="space-y-4">
-          <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", lineHeight: "0.9" }}>
-            CHUGLI BY @JAYYVARMAA
+          <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter" style={{ fontFamily: "Space Grotesk", color: "#1a1a1a", lineHeight: "1.1" }}>
+            CHUGLI
+            <span className="block text-2xl md:text-3xl mt-1 not-italic tracking-[0.3em] font-black opacity-30">BY @JAYYVARMAA</span>
           </h1>
-          <p className="text-xl md:text-2xl font-bold max-w-2xl mx-auto" style={{ fontFamily: "Inter", color: "#1a1a1a" }}>
+          <p className="text-xl md:text-2xl font-bold max-w-2xl mx-auto uppercase" style={{ fontFamily: "Inter", color: "#1a1a1a" }}>
             A secure and vibrant space for real-time conversations. join servers, create channels, and stay connected with your community.
           </p>
         </div>
