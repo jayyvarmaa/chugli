@@ -10,12 +10,14 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3000
       - key: CLIENT_URL
         value: https://chugli.jayyvarmaa.me
       - key: EMAIL_FROM_NAME
         value: Chugli
       - key: ARCJET_ENV
-        value: development
+        value: production
       - key: MONGO_URI
         sync: false
       - key: JWT_SECRET
@@ -34,5 +36,3 @@ services:
         sync: false
       - key: ARCJET_KEY
         sync: false
-
-
