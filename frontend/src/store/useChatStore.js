@@ -16,7 +16,8 @@ export const useChatStore = create((set, get) => ({
   isMessagesLoading: false,
   isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")) === true,
   isTyping: false,
-  pollingInterval: null, // Track polling interval ID
+  messagePollingInterval: null, // Track message polling interval ID
+  chatListPollingInterval: null, // Track chat list polling interval ID
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -138,7 +139,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser, messages, chats } = get();
+    const { selectedUser, messages } = get();
     const { authUser } = useAuthStore.getState();
 
     const tempId = `temp-${Date.now()}`;
@@ -290,7 +291,7 @@ export const useChatStore = create((set, get) => ({
 
     const optimisticMessage = {
       _id: tempId,
-      senderId: authUser, // Populate mock
+      senderId: authUser._id, // Populate mock
       channelId: channelId,
       text: messageData.text,
       image: messageData.image,
@@ -343,7 +344,7 @@ export const useChatStore = create((set, get) => ({
   },
   // ----------------------------------
 
-  sendTypingIndicator: (isTyping, channelId = null) => {
+  sendTypingIndicator: (isTyping) => {
     const { selectedUser } = get();
     if (!selectedUser) return;
 
@@ -357,10 +358,10 @@ export const useChatStore = create((set, get) => ({
   // POLLING: Check for new messages on the open chat every 0.5 seconds
   // This is a fallback if socket events are missed and ensures real-time updates
   startPollingMessages: () => {
-    const { selectedUser, pollingInterval } = get();
-    
+    const { selectedUser, messagePollingInterval } = get();
+
     // Clear any existing interval first
-    if (pollingInterval) clearInterval(pollingInterval);
+    if (messagePollingInterval) clearInterval(messagePollingInterval);
     if (!selectedUser) return;
 
     // Poll every 0.5 seconds for new messages (BACKGROUND - no loading spinner)
@@ -368,7 +369,7 @@ export const useChatStore = create((set, get) => ({
       const { selectedUser: currentSelectedUser } = get();
       if (!currentSelectedUser) {
         clearInterval(newInterval);
-        set({ pollingInterval: null });
+        set({ messagePollingInterval: null });
         return;
       }
 
@@ -376,14 +377,14 @@ export const useChatStore = create((set, get) => ({
       get().getMessagesByUserIdBackground(currentSelectedUser._id);
     }, 500); // 0.5 seconds
 
-    set({ pollingInterval: newInterval });
+    set({ messagePollingInterval: newInterval });
   },
 
   stopPollingMessages: () => {
-    const { pollingInterval } = get();
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-      set({ pollingInterval: null });
+    const { messagePollingInterval } = get();
+    if (messagePollingInterval) {
+      clearInterval(messagePollingInterval);
+      set({ messagePollingInterval: null });
     }
   },
 
@@ -394,7 +395,7 @@ export const useChatStore = create((set, get) => ({
       get().getMyChatPartnersBackground();
     }, 1000); // 1 second
 
-    set({ pollingInterval: chatListInterval });
+    set({ chatListPollingInterval: chatListInterval });
     return chatListInterval;
   },
 }));

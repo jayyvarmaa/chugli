@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { useAuthStore } from "../store/useAuthStore";
 import { useServerStore } from "../store/useServerStore";
 import ChatContainer from "../components/ChatContainer";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
@@ -11,7 +10,6 @@ import VideoRoom from "../components/VideoRoom";
 
 function ChatPage() {
   const { selectedUser, getMyChatPartners, stopPollingMessages, selectedChannel, setSelectedChannel } = useChatStore();
-  const { authUser, onlineUsers } = useAuthStore();
   const { servers, getServers, activeServerChannels } = useServerStore();
   
   // State for Discord-like navigation
@@ -25,7 +23,7 @@ function ChatPage() {
     setSelectedChannel(null); // Clear channel
   };
 
-  const handleSelectChannel = (channelId, type) => {
+  const handleSelectChannel = (channelId) => {
     const channel = activeServerChannels.find(c => c._id === channelId);
     setSelectedChannel(channel);
   };
@@ -42,7 +40,7 @@ function ChatPage() {
       clearInterval(chatListInterval);
       stopPollingMessages();
     };
-  }, [getMyChatPartners, stopPollingMessages]);
+  }, [getServers, getMyChatPartners, stopPollingMessages]);
 
   return (
     <div className="h-screen w-screen flex fixed inset-0 bg-[#f5f0e8] text-[#1a1a1a] overflow-hidden font-['Space_Grotesk']">

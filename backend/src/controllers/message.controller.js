@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import Message from "../models/Message.js";
 import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import { getReceiverSocketId, io, getUserActiveChat } from "../lib/socket.js";
 import mongoose from "mongoose";
 import { createLogger } from "../lib/logger.js";
 
@@ -88,16 +88,19 @@ export const sendMessage = async (req, res) => {
       .populate("replyToId", "text image senderId");
 
     const receiverSocketId = getReceiverSocketId(receiverId);
+    // Determine if the receiver currently has this conversation open (active chat)
+    const isReceiverChatActive = getUserActiveChat(receiverId) === senderId;
+
     if (receiverSocketId) {
-      if (isChatActive) {
+      if (isReceiverChatActive) {
         newMessage.isRead = true;
         await newMessage.save();
       }
 
       io.to(receiverSocketId).emit("newMessage", newMessage);
-      
+
       // Only emit unread notification if chat is NOT active
-      if (!isChatActive) {
+      if (!isReceiverChatActive) {
         io.to(receiverSocketId).emit("messageNotification", {
           senderId: senderId,
           receiverId: receiverId,

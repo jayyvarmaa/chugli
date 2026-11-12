@@ -5,7 +5,7 @@ import { createLogger } from "../lib/logger";
 
 const logger = createLogger("SERVER", false);
 
-export const useServerStore = create((set, get) => ({
+export const useServerStore = create((set) => ({
   servers: [],
   isLoadingServers: false,
   isCreatingServer: false,

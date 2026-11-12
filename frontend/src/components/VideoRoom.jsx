@@ -6,7 +6,7 @@ import { createLogger } from "../lib/logger";
 const logger = createLogger("WEBRTC", true);
 
 export default function VideoRoom({ channelId, onLeave }) {
-  const { socket, authUser } = useAuthStore();
+  const { socket } = useAuthStore();
   const [peers, setPeers] = useState({}); // { socketId: MediaStream }
   const [micEnabled, setMicEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);

@@ -1,11 +1,16 @@
 import User from "../models/User.js";
-import { firebaseAdmin } from "../lib/firebase.js";
+import { firebaseAdmin, firebaseInitialized } from "../lib/firebase.js";
 import { createLogger } from "../lib/logger.js";
 
 const logger = createLogger("WEBRTC", true);
 
 export const socketAuthMiddleware = async (socket, next) => {
   try {
+    if (!firebaseInitialized) {
+      logger.log("Socket connection rejected: Firebase not configured on server");
+      return next(new Error("Auth service unavailable - Firebase not configured"));
+    }
+
     let token = socket.handshake.auth?.token;
 
     if (!token) {

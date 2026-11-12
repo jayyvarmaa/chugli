@@ -14,7 +14,7 @@ function JoinServerModal({ onClose }) {
       await joinServer(serverId.trim());
       toast.success("Joined server!");
       onClose();
-    } catch (error) {
+    } catch {
       // Error handled by store
     }
   };

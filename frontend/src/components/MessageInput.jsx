@@ -22,7 +22,7 @@ function MessageInput() {
 
     if (!isTyping && value.length > 0) {
       setIsTyping(true);
-      sendTypingIndicator(true, selectedChannel?._id);
+      sendTypingIndicator(true);
     }
 
     if (typingTimeoutRef.current) {
@@ -31,7 +31,7 @@ function MessageInput() {
 
     typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
-      sendTypingIndicator(false, selectedChannel?._id);
+      sendTypingIndicator(false);
     }, 2000);
   };
 

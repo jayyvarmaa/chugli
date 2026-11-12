@@ -19,7 +19,7 @@ router.use(arcjetProtection, protectRoute);
 
 router.get("/contacts", getAllContacts);
 router.get("/chats", getChatPartners);
-router.get("/:id", getMessagesByUserId);
+router.get("/:id", getMessages);
 router.post("/send/:id", sendMessage);
 router.get("/channel/:channelId", getChannelMessages);
 router.post("/channel/send/:channelId", sendChannelMessage);

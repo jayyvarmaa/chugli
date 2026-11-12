@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link } from "react-router";
+import toast from "react-hot-toast";
 
 function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
