@@ -65,6 +65,7 @@ app.get("/api", (_, res) => {
 
 // Note: Frontend static assets are served by the separate frontend Vercel deployment
 // at https://chugli.jayyvarmaa.me. This backend project only serves the API.
+// Environment variables are managed via Vercel project settings.
 
 // Confirm all feature flags in the console before the server starts accepting traffic
 logFlags();
