@@ -28,19 +28,24 @@ if (ENV.CLIENT_URL) {
 
 console.log("Allowed CORS Origins:", CORS_ORIGIN);
 
-// Standard CORS options - PERMISSIVE for now to debug
+// Standard CORS options - explicitly allow frontend origin(s)
 const corsOptions = {
-  origin: true, // Accept all origins for now
+  origin: CORS_ORIGIN,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-  exposedHeaders: ["Content-Length", "X-JSON-Response"]
+  exposedHeaders: ["Content-Length", "X-JSON-Response"],
+  optionsSuccessStatus: 204,
 };
 
 // Increase request size limit to 100MB for handling large images without compression
 app.use(express.json({ limit: "100mb" })); // req.body
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.use(cors(corsOptions));
+
+// Explicitly handle OPTIONS preflight for all API routes to ensure CORS headers
+app.options("*", cors(corsOptions));
+
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
