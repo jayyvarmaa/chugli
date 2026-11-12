@@ -6,7 +6,7 @@ Built with a neo-brutalist design aesthetic.
 ## Live URLs
 
 - **Frontend:** https://chugli.jayyvarmaa.me (Vercel)
-- **Backend:** https://chugli-backend.jayyvarmaa.me (Vercel)
+- **Backend:** https://chugli-backend-d3f9.onrender.com (Render)
 
 ## What's Inside?
 
@@ -49,11 +49,10 @@ cp frontend/.env.example frontend/.env
 - `RESEND_API_KEY`, `EMAIL_FROM` — email service
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — image uploads
 - `ARCJET_KEY`, `ARCJET_ENV` — rate limiting / bot protection
-- `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` — Firebase Admin (verifies ID tokens)
 - `PORT`, `NODE_ENV`, `LOG_MAJOR`, `LOG_MINOR`
 
 **Frontend (`frontend/.env`)** — required:
-- `VITE_BACKEND_URL` — `https://chugli-backend.jayyvarmaa.me` (production) or `http://localhost:3000` (dev)
+- `VITE_BACKEND_URL` — `https://chugli-backend-d3f9.onrender.com` (production) or `http://localhost:3000` (dev)
 - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID` — Firebase config (from Firebase Console)
 - `VITE_LOG_MAJOR`, `VITE_LOG_MINOR`
 
@@ -88,17 +87,23 @@ The frontend is a Vite site. Deploy the `frontend/` directory on Vercel:
 - Set the environment variables from `frontend/.env.example` in the Vercel project settings.
 - `vercel.json` handles SPA routing (rewrites all paths to `index.html`).
 
-### Backend (Vercel)
+### Backend (Render)
 
-The backend is an Express + Socket.io app.
+The backend is deployed on **Render** (WebSocket-capable host for Socket.io). Socket.io real-time events (chat, typing, voice signaling) require a host that supports persistent WebSocket connections.
 
-**Important:** Socket.io real-time events (chat, typing, voice signaling) require a host that supports persistent WebSocket connections. If deploying the backend on Vercel serverless functions, only the REST API routes (`/api/...`) will work; real-time socket events need a WebSocket-capable host (e.g. Railway, Render, or a VPS).
+1. Go to [Render Dashboard](https://dashboard.render.com/) → **New → Web Service**
+2. Connect GitHub and select repo: `jayyvarmaa/chugli`
+3. Configure:
+   - **Root Directory:** `backend`
+   - **Runtime:** `Node`
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - **Plan:** Free (with uptime ticker to prevent cold starts) or Starter for always-on
+4. Add all environment variables from `backend/.env.example` in the Render dashboard.
+5. Add custom domain `chugli-backend.jayyvarmaa.me` in Render → Settings → Custom Domains.
+6. Update DNS to point to Render's target.
 
-The `backend/` directory includes:
-- `vercel.json` — configures `@vercel/node` routing for the REST API
-- `api/index.js` — serverless entry point that exports the Express app
-
-Set all backend environment variables in your hosting provider's dashboard.
+The `render.yaml` file in the repo root defines the service configuration.
 
 ### Root scripts
 
@@ -115,11 +120,13 @@ npm run start   # starts the backend
 | `MONGO_URI` | backend | MongoDB connection string |
 | `JWT_SECRET` | backend | JWT signing secret |
 | `CLIENT_URL` | backend | CORS / cookie origin (`https://chugli.jayyvarmaa.me`) |
-| `VITE_BACKEND_URL` | frontend | API base URL (`https://chugli-backend.jayyvarmaa.me`) |
+| `VITE_BACKEND_URL` | frontend | API base URL (`https://chugli-backend-d3f9.onrender.com`) |
 | `RESEND_API_KEY` | backend | Transactional email |
 | `CLOUDINARY_*` | backend | Image uploads |
 | `ARCJET_KEY` | backend | Rate limiting & bot protection |
-| `FIREBASE_*` | backend + frontend | Firebase Auth |
+| `FIREBASE_*` | frontend | Firebase Auth (client-side only) |
+
+**Note:** The backend no longer requires Firebase Admin SDK or `FIREBASE_PRIVATE_KEY`. ID tokens are decoded locally from the frontend's Firebase Auth tokens.
 
 ## Feature Flags
 
