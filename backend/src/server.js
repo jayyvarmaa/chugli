@@ -48,19 +48,23 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/servers", serverRoutes);
 app.use("/api/channels", channelRoutes);
 
-// Health check endpoint for Render deployment
+// Health check endpoint
 app.get("/health", (_, res) => {
   res.status(200).json({ status: "healthy", timestamp: new Date().toISOString() });
 });
 
-// make ready for deployment
-if (ENV.NODE_ENV === "production") {
-  app.use(express.static(path.join(PROJECT_ROOT, "frontend/dist")));
-
-  app.get("*", (_, res) => {
-    res.sendFile(path.join(PROJECT_ROOT, "frontend", "dist", "index.html"));
+// Root API info
+app.get("/api", (_, res) => {
+  res.status(200).json({
+    name: "chugli-backend",
+    version: "1.0.0",
+    status: "online",
+    endpoints: ["/api/auth", "/api/messages", "/api/servers", "/api/channels"],
   });
-}
+});
+
+// Note: Frontend static assets are served by the separate frontend Vercel deployment
+// at https://chugli.jayyvarmaa.me. This backend project only serves the API.
 
 // Confirm all feature flags in the console before the server starts accepting traffic
 logFlags();
