@@ -2,7 +2,7 @@ import express from "express";
 import {
   getAllContacts,
   getChatPartners,
-  getMessagesByUserId,
+  getMessages,
   sendMessage,
   markMessagesAsRead,
   getChannelMessages,
