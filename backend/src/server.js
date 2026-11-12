@@ -19,6 +19,10 @@ const PROJECT_ROOT = path.resolve(__dirname, "../..");
 
 const PORT = ENV.PORT || 3000;
 
+// Trust proxy (Render load balancer) so req.ip reflects the real client IP
+// This is required for Arcjet fingerprinting and rate limiting to work correctly
+app.set('trust proxy', true);
+
 // Parse CORS origins - ensure it's always an array
 let CORS_ORIGIN = ["https://chugli.jayyvarmaa.me"];
 if (ENV.CLIENT_URL) {
