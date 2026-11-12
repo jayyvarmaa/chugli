@@ -20,7 +20,7 @@ import { createLogger } from "../lib/logger";
 
 const logger = createLogger("AUTH", true);
 
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : (import.meta.env.VITE_BACKEND_URL || "https://chugli-backend.jayvarma.site");
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : (import.meta.env.VITE_BACKEND_URL || "https://chugli-backend.jayyvarmaa.me");
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,

@@ -11,7 +11,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: CLIENT_URL
-        value: https://chugli.jayvarma.site
+        value: https://chugli.jayyvarmaa.me
       - key: EMAIL_FROM_NAME
         value: Chugli
       - key: ARCJET_ENV

@@ -19,8 +19,8 @@ A simple, fast real-time chat application where you can send messages instantly 
 
 ## Deployed At
 
-- Frontend: https://chugli.jayvarma.site (Vercel)
-- Backend: https://api.chugli.jayvarma.site (Railway)
+- Frontend: https://chugli.jayyvarmaa.me (Vercel)
+- Backend: https://api.chugli.jayyvarmaa.me (Railway)
 
 ## Environment Variables Needed
 

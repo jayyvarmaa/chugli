@@ -16,7 +16,7 @@ const __dirname = path.resolve();
 const PORT = ENV.PORT || 3000;
 
 // Parse CORS origins - ensure it's always an array
-let CORS_ORIGIN = ["https://chugli.jayvarma.site"];
+let CORS_ORIGIN = ["https://chugli.jayyvarmaa.me"];
 if (ENV.CLIENT_URL) {
   const urls = ENV.CLIENT_URL.split(",").map(url => url.trim());
   CORS_ORIGIN = [...CORS_ORIGIN, ...urls];

@@ -112,7 +112,7 @@ function LoginPage() {
         {/* FOOTER */}
         <div className="text-center py-6 mt-4">
           <p className="text-[12px] font-black uppercase tracking-widest opacity-40">
-            Built by <a href="https://jayvarma.site" target="_blank" rel="noopener noreferrer" className="underline hover:text-black">@jayyvarmaa</a>
+            Built by <a href="https://jayyvarmaa.me" target="_blank" rel="noopener noreferrer" className="underline hover:text-black">@jayyvarmaa</a>
           </p>
         </div>
       </div>

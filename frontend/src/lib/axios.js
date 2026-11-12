@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL: `${import.meta.env.VITE_BACKEND_URL || "https://chugli-backend.jayvarma.site"}/api`,
+  baseURL: `${import.meta.env.VITE_BACKEND_URL || "https://chugli-backend.jayyvarmaa.me"}/api`,
   withCredentials: true,
 });
 
