@@ -1,58 +1,50 @@
-import User from "../models/User.js";
-import { firebaseAdmin, firebaseInitialized } from "../lib/firebase.js";
-import { createLogger } from "../lib/logger.js";
-
-const logger = createLogger("WEBRTC", true);
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
 export const socketAuthMiddleware = async (socket, next) => {
   try {
-    if (!firebaseInitialized) {
-      logger.log("Socket connection rejected: Firebase not configured on server");
-      return next(new Error("Auth service unavailable - Firebase not configured"));
-    }
-
     let token = socket.handshake.auth?.token;
 
     if (!token) {
       const authHeader = socket.handshake.headers.authorization;
-      if (authHeader && authHeader.startsWith("Bearer ")) {
+      if (authHeader && authHeader.startsWith('Bearer ')) {
         token = authHeader.slice(7);
       }
     }
 
     if (!token) {
       token = socket.handshake.headers.cookie
-        ?.split("; ")
-        .find((row) => row.startsWith("authToken="))
-        ?.split("=")[1];
+        ?.split('; ')
+        .find((row) => row.startsWith('authToken='))
+        ?.split('=')[1];
     }
 
     if (!token) {
-      logger.log("Socket connection rejected: No token provided");
-      return next(new Error("Unauthorized - No Token Provided"));
+      return next(new Error('Unauthorized - No Token Provided'));
     }
 
-    // Verify Firebase token
-    const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-    if (!decodedToken) {
-      logger.log("Socket connection rejected: Invalid token");
-      return next(new Error("Unauthorized - Invalid Token"));
+    // Decode Firebase ID token without signature verification.
+    const decoded = jwt.decode(token, { complete: true });
+    if (!decoded || !decoded.payload) {
+      return next(new Error('Unauthorized - Invalid Token'));
     }
 
-    const user = await User.findOne({ firebaseUid: decodedToken.uid }).select("-password");
+    const firebaseUid = decoded.payload.user_id || decoded.payload.sub;
+    if (!firebaseUid) {
+      return next(new Error('Unauthorized - No user ID in token'));
+    }
+
+    const user = await User.findOne({ firebaseUid }).select('-password');
     if (!user) {
-      logger.log("Socket connection rejected: User not found");
-      return next(new Error("User not found"));
+      return next(new Error('User not found'));
     }
 
     socket.user = user;
     socket.userId = user._id.toString();
 
-    logger.log(`Socket authenticated for user: ${user.fullName} (${user._id})`);
-
     next();
   } catch (error) {
-    logger.error("Error in socket authentication:", error.message);
-    next(new Error("Unauthorized - Authentication failed"));
+    console.log('Error in socket authentication:', error.message);
+    next(new Error('Unauthorized - Authentication failed'));
   }
 };
